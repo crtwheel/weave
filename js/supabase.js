@@ -120,11 +120,11 @@ async function sbSignedUrl(path, expiresIn = 3600) {
   const res = await fetch(`${SUPABASE_URL}/storage/v1/object/sign/template-files/${path}`, {
     method: 'POST',
     headers: sbHeaders(session.access_token),
-    body: JSON.stringify({ expiresIn })
+    body: JSON.stringify({ expiresIn: String(expiresIn) })
   });
   if (!res.ok) throw new Error('Signed URL failed');
   const data = await res.json();
-  return `${SUPABASE_URL}/storage/v1/object/sign/template-files/${path}?token=${data.signedURL || data.token}`;
+  return data.signedURL;
 }
 
 function sbPublicUrl(path) {
