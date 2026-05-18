@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weave — Premium Tailwind Templates</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/config.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Weave</a>
+      <nav class="nav-links">
+        <a href="index.html">Products</a>
+        <a href="faq.html">FAQ</a>
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="page-section">
+    <div class="container">
+      <h1 class="page-title">Premium Tailwind Templates</h1>
+      <p class="page-subtitle">Clean, responsive landing pages. Built fast. Pay with crypto.</p>
+      <div class="grid grid-3 gap-4" id="product-grid">
+        <!-- Product cards loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      &copy; 2026 Weave. Pay with ETH/USDC to wallet.<br>
+      <span style="font-size:0.75rem;color:var(--text-secondary);">0xbe9Db9c86B79617231a4861fb54ef278447D43fb</span>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script>
+    async function loadProducts() {
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = '<div class="skeleton" style="height:280px;"></div>'.repeat(3);
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('templates')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          grid.innerHTML = '<p class="text-secondary" style="grid-column:1/-1;">No templates available yet. Check back soon.</p>';
+          return;
+        }
+
+        grid.innerHTML = data.map(t => `
+          <a href="product.html?slug=${t.slug}" class="card" style="text-decoration:none;color:inherit;">
+            <div class="card-preview">
+              ${t.preview_url
+                ? `<img src="${t.preview_url}" alt="${t.name}" style="width:100%;height:100%;object-fit:cover;">`
+                : 'Preview coming soon'}
+            </div>
+            <div class="card-body">
+              <div class="card-title">${t.name}</div>
+              <div class="text-secondary" style="font-size:0.85rem;margin-bottom:0.75rem;">${t.description || ''}</div>
+              <div class="card-price">$${t.price_usd} <span class="card-price-sub">~${t.price_eth} ETH</span></div>
+            </div>
+          </a>
+        `).join('');
+      } catch (err) {
+        grid.innerHTML = '<p class="text-secondary" style="grid-column:1/-1;">Failed to load products. Please try again later.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProducts);
+  </script>
+</body>
+</html>

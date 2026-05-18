@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product — Weave</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/config.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Weave</a>
+      <nav class="nav-links">
+        <a href="index.html">Products</a>
+        <a href="faq.html">FAQ</a>
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="page-section">
+    <div class="container">
+      <a href="index.html" class="btn btn-outline btn-sm mb-4">&larr; Back to Products</a>
+      <div id="product-detail">
+        <div class="skeleton" style="height:300px;margin-bottom:2rem;"></div>
+        <div class="skeleton" style="height:40px;width:60%;margin-bottom:1rem;"></div>
+        <div class="skeleton" style="height:20px;width:40%;"></div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/purchase-form.js"></script>
+  <script>
+    async function loadProduct() {
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug');
+
+      if (!slug) {
+        document.getElementById('product-detail').innerHTML = '<p class="text-secondary">No product specified. <a href="index.html" class="text-accent">Browse products.</a></p>';
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('templates')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+
+        if (error || !data) throw error;
+
+        document.getElementById('product-detail').innerHTML = `
+          <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 3rem;">
+            <div>
+              <div class="card-preview" style="height:350px;">
+                ${data.preview_url
+                  ? `<img src="${data.preview_url}" alt="${data.name}" style="width:100%;height:100%;object-fit:cover;">`
+                  : 'Preview coming soon'}
+              </div>
+            </div>
+            <div>
+              <h1 class="page-title">${data.name}</h1>
+              <p class="page-subtitle" style="margin-bottom:2rem;">${data.description || ''}</p>
+
+              <div style="margin-bottom:2rem;">
+                <div class="card-price">$${data.price_usd}</div>
+                <div class="card-price-sub">~${data.price_eth} ETH</div>
+              </div>
+
+              <h3 style="font-weight:600;margin-bottom:1rem;">What's included</h3>
+              <ul style="list-style:none;margin-bottom:2rem;color:var(--text-secondary);">
+                <li style="padding:0.35rem 0;">&check; Responsive design</li>
+                <li style="padding:0.35rem 0;">&check; Tailwind CSS 3.x</li>
+                <li style="padding:0.35rem 0;">&check; 6 pre-built sections</li>
+                <li style="padding:0.35rem 0;">&check; Dark theme</li>
+                <li style="padding:0.35rem 0;">&check; Clean HTML structure</li>
+              </ul>
+
+              <h3 style="font-weight:600;margin-bottom:1rem;">How to buy</h3>
+              <ol class="steps-list" style="margin-bottom:2rem;">
+                <li>
+                  Send exactly <strong>${data.price_eth} ETH</strong> (or equivalent USDC) to the wallet below.
+                  <div class="wallet-address" style="margin-top:0.75rem;">
+                    <span id="wallet-addr">${WEAVE_CONFIG.WALLET_ADDRESS}</span>
+                    <button class="copy-btn" onclick="copyWallet()">Copy</button>
+                  </div>
+                </li>
+                <li>Copy the transaction hash (0x...) from your wallet after sending.</li>
+                <li>Fill in the form below with your email, transaction hash, and sending wallet address.</li>
+                <li>Wait for verification (usually under 5 minutes). You'll get download access on your dashboard.</li>
+              </ol>
+            </div>
+          </div>
+
+          <div style="max-width:600px;margin-top:3rem;">
+            <h2 style="font-size:1.25rem;font-weight:600;margin-bottom:1.5rem;">Verify Your Purchase</h2>
+            <p class="text-secondary" style="margin-bottom:1.5rem;">Already sent the crypto? Enter your details below to get access.</p>
+            <form id="purchase-form" onsubmit="submitPurchase(event, ${data.id})">
+              <div class="form-group">
+                <label class="form-label" for="email">Email address</label>
+                <input class="form-input" type="email" id="email" required placeholder="you@example.com">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tx-hash">Transaction hash</label>
+                <input class="form-input font-mono" type="text" id="tx-hash" required placeholder="0x...">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="sender-wallet">Your sending wallet address</label>
+                <input class="form-input font-mono" type="text" id="sender-wallet" required placeholder="0x...">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="discord">Discord username (optional)</label>
+                <input class="form-input" type="text" id="discord" placeholder="username#0000">
+              </div>
+              <button class="btn btn-primary" type="submit" id="submit-btn">Submit for Verification</button>
+            </form>
+            <div id="form-status" style="margin-top:1rem;"></div>
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById('product-detail').innerHTML = '<p class="text-secondary">Product not found. <a href="index.html" class="text-accent">Browse products.</a></p>';
+      }
+    }
+
+    function copyWallet() {
+      navigator.clipboard.writeText(WEAVE_CONFIG.WALLET_ADDRESS);
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProduct);
+  </script>
+</body>
+</html>

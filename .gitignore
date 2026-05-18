@@ -1,0 +1,16 @@
+# Weave .gitignore
+
+# Config files (contains Supabase URL/anon key — injected via CI)
+js/config.js
+
+# Template files (stored in Supabase Storage, not in repo)
+templates/
+*.zip
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
