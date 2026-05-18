@@ -4,85 +4,123 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — Weave</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
+  <style>
+    :root { --bg-primary: #0a0a0f; --bg-secondary: #12121a; --bg-card: rgba(30,30,42,0.6); --text-primary: #fff; --text-secondary: #8b8b9a; --accent: #f59e0b; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); }
+    .bg-mesh { position:fixed; inset:0; z-index:-1; }
+    .bg-mesh::before { content:''; position:absolute; width:150%; height:150%; top:-25%; left:-25%; background: radial-gradient(ellipse at 20% 30%, rgba(245,158,11,0.15) 0%, transparent 40%), radial-gradient(ellipse at 80% 70%, rgba(139,92,246,0.1) 0%, transparent 40%); animation:meshMove 20s ease-in-out infinite; }
+    @keyframes meshMove { 0%,100%{transform:translate(0,0)} 33%{transform:translate(2%,-2%)} 66%{transform:translate(-1%,1%)} }
+    .site-header { position:fixed; top:0; left:0; right:0; z-index:100; padding:1rem 2rem; background:rgba(10,10,15,0.8); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.05); }
+    .logo { font-family:'Space Mono',monospace; font-weight:700; font-size:1.3rem; color:var(--accent); text-decoration:none; }
+    .nav-links a { color:var(--text-secondary); text-decoration:none; font-weight:500; font-size:0.9rem; margin-left:2rem; }
+    .nav-links a:hover { color:var(--text-primary); }
+    .container { max-width:800px; margin:0 auto; padding:0 2rem; }
+    .page-header { padding:6rem 0 3rem; }
+    .page-title { font-size:2rem; font-weight:800; margin-bottom:0.5rem; }
+    .glass-card { background:var(--bg-card); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:2rem; }
+    .form-input { width:100%; padding:0.9rem 1.25rem; background:var(--bg-secondary); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:#fff; font-size:0.95rem; font-family:inherit; transition:all 0.2s; }
+    .form-input:focus { outline:none; border-color:var(--accent); }
+    .form-label { display:block; font-size:0.85rem; font-weight:500; color:var(--text-secondary); margin-bottom:0.4rem; }
+    .form-group { margin-bottom:1.25rem; }
+    .btn-primary { display:inline-block; padding:0.85rem 2rem; background:var(--accent); color:#000; font-weight:700; font-size:0.95rem; border-radius:100px; border:none; cursor:pointer; width:100%; margin-top:1rem; }
+    .btn-primary:hover { box-shadow:0 0 25px rgba(245,158,11,0.4); }
+    .btn-secondary { display:inline-block; padding:0.6rem 1.5rem; background:transparent; color:var(--text-secondary); font-weight:600; font-size:0.85rem; border-radius:100px; border:1px solid rgba(255,255,255,0.1); cursor:pointer; margin-top:1rem; }
+    .purchases-table { width:100%; border-collapse:collapse; }
+    .purchases-table th { text-align:left; padding:1rem; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-secondary); border-bottom:1px solid rgba(255,255,255,0.1); }
+    .purchases-table td { padding:1.25rem 1rem; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .status-badge { padding:0.3rem 0.8rem; border-radius:100px; font-size:0.7rem; font-weight:600; }
+    .status-pending { background:rgba(234,179,8,0.15); color:#eab308; }
+    .status-verified { background:rgba(34,197,94,0.15); color:#22c55e; }
+    .status-rejected { background:rgba(239,68,68,0.15); color:#ef4444; }
+    .btn-download { background:rgba(245,158,11,0.15); color:var(--accent); border:none; padding:0.4rem 1rem; border-radius:8px; font-size:0.8rem; font-weight:600; cursor:pointer; }
+    .btn-download:hover { background:rgba(245,158,11,0.25); }
+    .error-message { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#ef4444; padding:1rem; border-radius:12px; margin-top:1rem; }
+    .success-message { background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); color:#22c55e; padding:1rem; border-radius:12px; margin-top:1rem; }
+  </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="header-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-icon">W</span>
-        Weave
-      </a>
-      <nav class="nav-links">
-        <a href="index.html">Products</a>
-        <a href="faq.html">FAQ</a>
-        <a href="dashboard.html">Dashboard</a>
-      </nav>
+  <div class="bg-mesh"></div>
+  <header class="site-header"><a href="index.html" class="logo">Weave</a><nav class="nav-links"><a href="index.html">Products</a><a href="faq.html">FAQ</a><a href="dashboard.html">Dashboard</a></nav></header>
+  <div class="container">
+    <section class="page-header"><h1 class="page-title">Dashboard</h1></section>
+    
+    <!-- Auth form -->
+    <div id="auth-section" class="glass-card">
+      <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:0.5rem;">Sign In</h2>
+      <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;">Create an account or sign in to track your purchases</p>
+      <form onsubmit="handleAuth(event)">
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="auth-email" required placeholder="you@example.com"></div>
+        <div class="form-group"><label class="form-label">Password (min 6 chars)</label><input class="form-input" type="password" id="auth-password" required minlength="6"></div>
+        <button class="btn-primary" type="submit" id="auth-btn">Sign In</button>
+        <p id="auth-status" style="margin-top:1rem;font-size:0.85rem;"></p>
+        <p style="margin-top:1.5rem;font-size:0.85rem;color:var(--text-secondary);">Don't have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);">Sign up</a></p>
+      </form>
     </div>
-  </header>
 
-  <section class="page-section">
-    <div class="container">
-      <h1 class="page-title" style="margin-bottom:2rem;">Dashboard</h1>
-
-      <div id="auth-section" class="auth-card">
-        <h2 id="auth-mode" style="font-size:1.2rem;font-weight:600;margin-bottom:1.5rem;text-align:center;">Sign In</h2>
-        <form onsubmit="handleAuth(event)">
-          <div class="form-group">
-            <label class="form-label" for="auth-email">Email</label>
-            <input class="form-input" type="email" id="auth-email" required placeholder="you@example.com">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="auth-password">Password</label>
-            <input class="form-input" type="password" id="auth-password" required minlength="6" placeholder="Min 6 characters">
-          </div>
-          <button class="btn btn-primary" type="submit" id="auth-submit" style="width:100%;">Sign In</button>
-          <p id="auth-status" style="margin-top:1rem;font-size:0.85rem;text-align:center;"></p>
-        </form>
-        <p id="auth-toggle" style="margin-top:1.5rem;font-size:0.85rem;color:var(--text-secondary);text-align:center;">
-          Don't have an account? <a href="#" onclick="toggleAuthMode();return false;" class="text-accent">Sign up</a>
-        </p>
-      </div>
-
-      <div id="dashboard-section" style="display:none;">
-        <div class="dashboard-wrapper">
-          <div class="dashboard-sidebar">
-            <div class="user-info">
-              <div class="user-avatar">W</div>
-              <div class="user-email" id="user-email"></div>
-            </div>
-            <nav class="dashboard-nav">
-              <a href="#" class="active">My Purchases</a>
-              <a href="index.html">Browse Templates</a>
-              <a href="#" onclick="handleSignOut();return false;">Sign Out</a>
-            </nav>
-          </div>
-          <div>
-            <div class="glass" style="overflow:hidden;">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Template</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Download</th>
-                  </tr>
-                </thead>
-                <tbody id="purchases-body">
-                  <tr><td colspan="4" style="text-align:center;padding:3rem;color:var(--text-tertiary);">Loading...</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+    <!-- Dashboard content -->
+    <div id="dashboard-section" style="display:none;">
+      <div class="glass-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+          <div><strong style="font-size:1.1rem;" id="user-email"></strong></div>
+          <button class="btn-secondary" onclick="handleSignOut()">Sign Out</button>
         </div>
+        <table class="purchases-table">
+          <thead><tr><th>Template</th><th>Date</th><th>Status</th><th>Download</th></tr></thead>
+          <tbody id="purchases-body"><tr><td colspan="4" style="text-align:center;color:var(--text-secondary);padding:2rem;">Loading...</td></tr></tbody>
+        </table>
       </div>
     </div>
-  </section>
+  </div>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-client.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/dashboard.js"></script>
+  <script>
+    async function init() {
+      const {user}=await supabaseClient.auth.getUser().catch(()=>({user:null}));
+      if(user) { document.getElementById('auth-section').style.display='none'; document.getElementById('dashboard-section').style.display='block'; document.getElementById('user-email').textContent=user.email; loadPurchases(user.id); }
+    }
+    async function handleAuth(e) {
+      e.preventDefault();
+      const btn=document.getElementById('auth-btn'), status=document.getElementById('auth-status');
+      const email=document.getElementById('auth-email').value, pass=document.getElementById('auth-password').value;
+      const isSignup=btn.textContent.includes('Sign');
+      btn.disabled=true; btn.textContent='...';
+      try {
+        const {user,error}=isSignup 
+          ? await supabaseClient.auth.signUp({email,password:pass})
+          : await supabaseClient.auth.signInWithPassword({email,password:pass});
+        if(error) throw error;
+        status.innerHTML=isSignup ? '<div class="success-message">Check your email to confirm!</div>' : '<div class="success-message">Signed in!</div>';
+        if(!isSignup) setTimeout(()=>location.reload(),500);
+      } catch(err) { status.innerHTML='<div class="error-message">'+err.message+'</div>'; }
+      btn.disabled=false; btn.textContent=isSignup ? 'Sign Up' : 'Sign In';
+    }
+    function toggleAuthMode() {
+      const btn=document.getElementById('auth-btn'), status=document.getElementById('auth-status');
+      btn.textContent=btn.textContent.includes('Sign') ? 'Sign In' : 'Sign Up';
+      status.innerHTML='';
+    }
+    async function handleSignOut() { await supabaseClient.auth.signOut(); location.reload(); }
+    async function loadPurchases(userId) {
+      const {data,error}=await supabaseClient.from('purchases').select('*,templates(name)').eq('user_id',userId).order('created_at',{ascending:false});
+      const tbody=document.getElementById('purchases-body');
+      if(error||!data||!data.length) { tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--text-secondary);padding:2rem;">No purchases yet. <a href="index.html" style="color:var(--accent);">Browse templates</a></td></tr>'; return; }
+      tbody.innerHTML=data.map(p=>{
+        const badge=p.status==='verified'?'status-verified':p.status==='rejected'?'status-rejected':'status-pending';
+        const btn=p.status==='verified' ? `<button class="btn-download" onclick="downloadTemplate(${p.template_id})">Download</button>` : '—';
+        return `<tr><td>${p.templates?.name||'Unknown'}</td><td>${new Date(p.created_at).toLocaleDateString()}</td><td><span class="status-badge ${badge}">${p.status}</span></td><td>${btn}</td></tr>`;
+      }).join('');
+    }
+    async function downloadTemplate(id) {
+      const {data}=await supabaseClient.from('templates').select('storage_path').eq('id',id).single();
+      if(!data) return;
+      const {data:url}=await supabaseClient.storage.from('template-files').createSignedUrl(data.storage_path,3600);
+      if(url) window.open(url.signedUrl,'_blank');
+    }
+    init();
+  </script>
 </body>
 </html>

@@ -4,67 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FAQ — Weave</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/config.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --bg-primary: #0a0a0f; --bg-secondary: #12121a; --bg-card: rgba(30,30,42,0.6); --text-primary: #fff; --text-secondary: #8b8b9a; --accent: #f59e0b; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); }
+    .bg-mesh { position:fixed; inset:0; z-index:-1; }
+    .bg-mesh::before { content:''; position:absolute; width:150%; height:150%; top:-25%; left:-25%; background: radial-gradient(ellipse at 20% 30%, rgba(245,158,11,0.15) 0%, transparent 40%), radial-gradient(ellipse at 80% 70%, rgba(139,92,246,0.1) 0%, transparent 40%); animation:meshMove 20s ease-in-out infinite; }
+    @keyframes meshMove { 0%,100%{transform:translate(0,0)} 33%{transform:translate(2%,-2%)} 66%{transform:translate(-1%,1%)} }
+    .site-header { position:fixed; top:0; left:0; right:0; z-index:100; padding:1rem 2rem; background:rgba(10,10,15,0.8); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.05); }
+    .logo { font-family:'Space Mono',monospace; font-weight:700; font-size:1.3rem; color:var(--accent); text-decoration:none; }
+    .nav-links a { color:var(--text-secondary); text-decoration:none; font-weight:500; font-size:0.9rem; margin-left:2rem; }
+    .container { max-width:650px; margin:0 auto; padding:0 2rem; }
+    .page-header { padding:6rem 0 3rem; }
+    .page-title { font-size:2rem; font-weight:800; margin-bottom:0.5rem; }
+    .glass-card { background:var(--bg-card); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:2rem; }
+    .faq-item { padding:1.25rem 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .faq-item:first-child { padding-top:0; }
+    .faq-item:last-child { border-bottom:none; }
+    .faq-question { font-weight:600; font-size:1rem; margin-bottom:0.4rem; }
+    .faq-answer { color:var(--text-secondary); font-size:0.9rem; line-height:1.7; }
+  </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="header-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-icon">W</span>
-        Weave
-      </a>
-      <nav class="nav-links">
-        <a href="index.html">Products</a>
-        <a href="faq.html">FAQ</a>
-        <a href="dashboard.html">Dashboard</a>
-      </nav>
+  <div class="bg-mesh"></div>
+  <header class="site-header"><a href="index.html" class="logo">Weave</a><nav class="nav-links"><a href="index.html">Products</a><a href="faq.html">FAQ</a><a href="dashboard.html">Dashboard</a></nav></header>
+  <section class="container">
+    <div class="page-header">
+      <h1 class="page-title">FAQ</h1>
     </div>
-  </header>
-
-  <section class="page-section">
-    <div class="container" style="max-width:700px;">
-      <h1 class="page-title">Frequently Asked Questions</h1>
-
-      <div class="faq-item">
-        <div class="faq-question">What is Weave?</div>
-        <div class="faq-answer">Weave sells premium Tailwind CSS landing page templates. Pay once with crypto, download the full source, use it for any project.</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">How do I pay with crypto?</div>
-        <div class="faq-answer">Send the exact amount in ETH or USDC to the wallet address on the product page. After the transaction confirms, submit the transaction hash and your sending wallet address in the verification form. You'll get access once verified.</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">How long does verification take?</div>
-        <div class="faq-answer">Usually under 5 minutes. The seller verifies each transaction on Etherscan. Status updates on your dashboard.</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">What if I send the wrong amount?</div>
-        <div class="faq-answer">If you send less than the listed price, the transaction will be rejected. If you send more, contact us. Always double-check before sending.</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">Can I get a refund?</div>
-        <div class="faq-answer">Digital product sales are final. If there's a genuine issue with the template, contact us and we'll fix it.</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">Do I need an account?</div>
-        <div class="faq-answer">Yes — create a free account on the Dashboard page. This links purchases to your profile for download access.</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">What templates are coming next?</div>
-        <div class="faq-answer">Portfolio, Startup Pre-Sale, Waitlist/Coming Soon, and Blog templates are planned.</div>
-      </div>
+    <div class="glass-card">
+      <div class="faq-item"><div class="faq-question">What is Weave?</div><div class="faq-answer">Weave sells premium Tailwind CSS landing page templates. Pay once with crypto, download the full source, and use it for any project.</div></div>
+      <div class="faq-item"><div class="faq-question">How do I pay with crypto?</div><div class="faq-answer">Send the exact amount in ETH or USDC to the wallet address on the product page. After confirming, submit your transaction hash and wallet address. You'll get access once verified.</div></div>
+      <div class="faq-item"><div class="faq-question">How long does verification take?</div><div class="faq-answer">Usually under 5 minutes. The seller verifies each transaction on Etherscan. Check your dashboard for status updates.</div></div>
+      <div class="faq-item"><div class="faq-question">What if I send the wrong amount?</div><div class="faq-answer">If you send less, it's rejected. If you send more, contact us. Always double-check before sending.</div></div>
+      <div class="faq-item"><div class="faq-question">Can I get a refund?</div><div class="faq-answer">Digital products are final. If there's a genuine issue with the template, contact us and we'll fix it.</div></div>
+      <div class="faq-item"><div class="faq-question">Do I need an account?</div><div class="faq-answer">Yes — create a free account on the Dashboard. This links purchases to your profile for download access.</div></div>
     </div>
   </section>
-
-  <footer class="site-footer">
-    <div class="container">&copy; 2026 Weave</div>
-  </footer>
 </body>
 </html>
