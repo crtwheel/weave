@@ -3,110 +3,223 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product — Weave</title>
+  <title>Weave — Product</title>
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/config.js"></script>
-  <style>
-    :root { --bg-primary: #0a0a0f; --bg-secondary: #12121a; --bg-card: rgba(30,30,42,0.6); --text-primary: #fff; --text-secondary: #8b8b9a; --accent: #f59e0b; }
-    body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); }
-    .bg-mesh { position:fixed; inset:0; z-index:-1; overflow:hidden; }
-    .bg-mesh::before { content:''; position:absolute; width:150%; height:150%; top:-25%; left:-25%; background: radial-gradient(ellipse at 20% 30%, rgba(245,158,11,0.15) 0%, transparent 40%), radial-gradient(ellipse at 80% 70%, rgba(139,92,246,0.1) 0%, transparent 40%); animation:meshMove 20s ease-in-out infinite; }
-    @keyframes meshMove { 0%,100%{transform:translate(0,0)} 33%{transform:translate(2%,-2%)} 66%{transform:translate(-1%,1%)} }
-    .site-header { position:fixed; top:0; left:0; right:0; z-index:100; padding:1rem 2rem; background:rgba(10,10,15,0.8); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.05); }
-    .logo { font-family:'Space Mono',monospace; font-weight:700; font-size:1.3rem; color:var(--accent); text-decoration:none; }
-    .nav-links a { color:var(--text-secondary); text-decoration:none; font-weight:500; font-size:0.9rem; margin-left:2rem; transition:color 0.2s; }
-    .nav-links a:hover { color:var(--text-primary); }
-    .container { max-width:1100px; margin:0 auto; padding:0 2rem; }
-    .page-header { padding:6rem 0 3rem; }
-    .page-title { font-size:2.5rem; font-weight:800; margin-bottom:0.5rem; }
-    .product-layout { display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start; }
-    .product-preview { aspect-ratio:16/10; background:var(--bg-secondary); border-radius:16px; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); font-family:'Space Mono',monospace; overflow:hidden; }
-    .product-preview img { width:100%; height:100%; object-fit:cover; }
-    .glass-card { background:var(--bg-card); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem; }
-    .form-input { width:100%; padding:0.9rem 1.25rem; background:var(--bg-secondary); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:#fff; font-size:0.95rem; font-family:inherit; transition:all 0.2s; }
-    .form-input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(245,158,11,0.15); }
-    .form-label { display:block; font-size:0.85rem; font-weight:500; color:var(--text-secondary); margin-bottom:0.4rem; }
-    .form-group { margin-bottom:1.25rem; }
-    .btn-primary { display:inline-block; padding:0.85rem 2rem; background:var(--accent); color:#000; font-weight:700; font-size:0.95rem; border-radius:100px; border:none; cursor:pointer; transition:all 0.3s; }
-    .btn-primary:hover { transform:scale(1.02); box-shadow:0 0 25px rgba(245,158,11,0.4); }
-    .btn-primary:disabled { opacity:0.6; cursor:not-allowed; }
-    .wallet-box { background:var(--bg-secondary); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:1rem; font-family:'Space Mono',monospace; font-size:0.8rem; word-break:break-all; display:flex; gap:0.75rem; }
-    .wallet-address { flex:1; }
-    .copy-btn { background:rgba(245,158,11,0.2); color:var(--accent); border:none; padding:0.4rem 0.8rem; border-radius:8px; font-size:0.75rem; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
-    .copy-btn:hover { background:rgba(245,158,11,0.35); }
-    .steps-list { list-style:none; counter-reset:step; }
-    .steps-list li { counter-increment:step; padding:1rem 0 1rem 3rem; position:relative; color:var(--text-secondary); font-size:0.9rem; line-height:1.6; border-bottom:1px solid rgba(255,255,255,0.05); }
-    .steps-list li::before { content:counter(step); position:absolute; left:0; top:1rem; width:1.75rem; height:1.75rem; background:var(--accent); color:#000; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; }
-    .steps-list li strong { color:#fff; }
-    .feature-list { list-style:none; }
-    .feature-list li { padding:0.35rem 0; color:var(--text-secondary); font-size:0.9rem; }
-    .feature-list li::before { content:'✓ '; color:#22c55e; font-weight:700; }
-    .price-display { font-size:2rem; font-weight:800; color:var(--accent); margin-bottom:0.25rem; }
-    .price-sub { font-size:0.85rem; color:var(--text-secondary); }
-    @media(max-width:768px){ .product-layout{grid-template-columns:1fr;} }
-  </style>
+
+  <!-- Supabase -->
+  <script src="js/supabase.js"></script>
 </head>
 <body>
-  <div class="bg-mesh"></div>
-  <header class="site-header"><a href="index.html" class="logo">Weave</a><nav class="nav-links"><a href="index.html">Products</a><a href="faq.html">FAQ</a><a href="dashboard.html">Dashboard</a></nav></header>
-  <section class="page-header"><div class="container"><a href="index.html" style="color:var(--text-secondary);text-decoration:none;font-size:0.9rem;">← Back</a></div></section>
-  <section class="container"><div id="product-detail"></div></section>
+  <header class="site-header">
+    <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
+    <nav class="nav-links">
+      <a href="index.html">Products</a>
+      <a href="faq.html">FAQ</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <main class="container" style="padding-top: 7rem; padding-bottom: 4rem;">
+
+    <a href="index.html" style="display: inline-flex; align-items: center; gap: 0.25rem; color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; margin-bottom: 2rem; transition: color 0.2s;">← Back</a>
+
+    <!-- Loading skeleton -->
+    <div id="loading-state">
+      <div class="product-layout">
+        <div class="skeleton" style="aspect-ratio: 16/10; border-radius: var(--radius-md);"></div>
+        <div>
+          <div class="skeleton" style="height: 2rem; width: 70%; margin-bottom: 1rem;"></div>
+          <div class="skeleton" style="height: 1rem; width: 100%; margin-bottom: 0.5rem;"></div>
+          <div class="skeleton" style="height: 1rem; width: 100%; margin-bottom: 0.5rem;"></div>
+          <div class="skeleton" style="height: 1rem; width: 60%; margin-bottom: 2rem;"></div>
+          <div class="skeleton" style="height: 2.5rem; width: 40%; margin-bottom: 1rem;"></div>
+          <div class="skeleton" style="height: 1rem; width: 50%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div id="error-state" style="display: none;">
+      <div class="page-header" style="text-align: center;">
+        <h1 class="page-title">Product Not Found</h1>
+        <p class="page-subtitle" style="margin: 0 auto;">This template doesn't exist or has been removed.</p>
+        <a href="index.html" class="btn btn-outline" style="margin-top: 1.5rem;">Browse Templates</a>
+      </div>
+    </div>
+
+    <!-- Product content -->
+    <div id="product-content" style="display: none;">
+      <div class="product-layout">
+
+        <!-- Preview -->
+        <div class="product-preview" id="product-preview">PREVIEW</div>
+
+        <!-- Info -->
+        <div>
+          <span class="hero-badge">Template</span>
+
+          <h1 class="page-title" id="product-name" style="margin-bottom: 0.5rem;"></h1>
+
+          <p class="page-subtitle" id="product-desc" style="margin-bottom: 1.5rem; max-width: 100%;"></p>
+
+          <div class="price-display" id="product-price"></div>
+          <div class="price-sub" id="product-price-eth"></div>
+
+          <!-- What's Included -->
+          <h3 class="font-display" style="font-size: 0.9rem; margin: 1.5rem 0 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);">What's Included</h3>
+          <ul class="feature-list" id="features-list"></ul>
+
+          <!-- How to Buy -->
+          <h3 class="font-display" style="font-size: 0.9rem; margin: 2rem 0 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);">How to Buy</h3>
+          <ol class="steps-list">
+            <li><strong>Send payment</strong> to the wallet address below for the exact ETH amount shown above.</li>
+            <li><strong>Copy your transaction hash</strong> (TxID) from your wallet after sending.</li>
+            <li><strong>Fill out the form below</strong> with your transaction details to verify your purchase.</li>
+          </ol>
+
+          <!-- Wallet -->
+          <div class="wallet-box" style="margin-bottom: 2rem;">
+            <span class="addr" id="wallet-display"></span>
+            <button class="copy-btn" onclick="copyWallet()">Copy</button>
+          </div>
+
+          <!-- Purchase verification form -->
+          <div class="purchase-card">
+            <h3 class="font-display" style="font-size: 1rem; margin-bottom: 1rem;">Verify Your Purchase</h3>
+            <form id="purchase-form">
+              <div class="form-group">
+                <label class="form-label" for="tx-hash">Transaction Hash *</label>
+                <input class="form-input" id="tx-hash" placeholder="0x..." required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="sender-wallet">Sender Wallet *</label>
+                <input class="form-input" id="sender-wallet" placeholder="0x..." required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="discord">Discord Username</label>
+                <input class="form-input" id="discord" placeholder="user#0000">
+              </div>
+              <button type="submit" class="btn btn-accent" id="submit-btn" style="width: 100%;">Submit</button>
+              <div id="form-status"></div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+
   <script>
+    let currentProductId = null;
+
     async function loadProduct() {
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('slug');
-      const container = document.getElementById('product-detail');
-      if (!slug) { container.innerHTML = '<p style="color:var(--text-secondary);">No product selected.</p>'; return; }
+
+      if (!slug) {
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('error-state').style.display = 'block';
+        return;
+      }
+
       try {
-        const { data, error } = await supabaseClient.from('templates').select('*').eq('slug', slug).single();
-        if (error || !data) throw error;
-        container.innerHTML = `<div class="product-layout">
-          <div><div class="product-preview">${data.preview_url ? `<img src="${data.preview_url}" alt="${data.name}">` : 'PREVIEW'}</div></div>
-          <div>
-            <h1 class="page-title" style="font-size:2rem;">${data.name}</h1>
-            <p style="color:var(--text-secondary);margin-bottom:1.5rem;">${data.description || ''}</p>
-            <div class="price-display">$${data.price_usd}</div>
-            <div class="price-sub">~${data.price_eth} ETH</div>
-            <h3 style="font-weight:600;margin:1.5rem 0 0.75rem;">What's included</h3>
-            <ul class="feature-list"><li>Responsive design</li><li>Tailwind CSS 3.x</li><li>6 pre-built sections</li><li>Clean HTML</li></ul>
-            <h3 style="font-weight:600;margin:1.5rem 0 0.75rem;">How to buy</h3>
-            <ol class="steps-list" style="margin-bottom:1.5rem;">
-              <li>Send <strong>${data.price_eth} ETH</strong> to:<div class="wallet-box" style="margin-top:0.75rem;"><span class="wallet-address">${WEAVE_CONFIG.WALLET_ADDRESS}</span><button class="copy-btn" onclick="navigator.clipboard.writeText('${WEAVE_CONFIG.WALLET_ADDRESS}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)">Copy</button></div></li>
-              <li>Copy transaction hash after sending</li>
-              <li>Fill form below with your details</li>
-              <li>Wait ~5 min for verification</li>
-            </ol>
-            <div class="glass-card">
-              <h3 style="font-weight:600;margin-bottom:1rem;">Verify Purchase</h3>
-              <form id="purchase-form" onsubmit="submitPurchase(event,${data.id})">
-                <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" id="email" required placeholder="you@example.com"></div>
-                <div class="form-group"><label class="form-label">Transaction hash</label><input class="form-input" type="text" id="tx-hash" required placeholder="0x..."></div>
-                <div class="form-group"><label class="form-label">Your sending wallet address</label><input class="form-input" type="text" id="sender-wallet" required placeholder="0x..."></div>
-                <div class="form-group"><label class="form-label">Discord (optional)</label><input class="form-input" type="text" id="discord" placeholder="username"></div>
-                <button class="btn-primary" type="submit" id="submit-btn">Submit</button>
-                <div id="form-status" style="margin-top:1rem;"></div>
-              </form>
-            </div>
-          </div>
-        </div>`;
-      } catch(e) { container.innerHTML = '<p style="color:var(--text-secondary);">Product not found.</p>'; }
+        const product = await sbSelect('templates', { eq: ['slug', slug], single: true });
+
+        if (!product) {
+          document.getElementById('loading-state').style.display = 'none';
+          document.getElementById('error-state').style.display = 'block';
+          return;
+        }
+
+        renderProduct(product);
+      } catch (err) {
+        sbLog.error('Failed to load product', err);
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('error-state').style.display = 'block';
+      }
     }
-    async function submitPurchase(e,templateId) {
+
+    function renderProduct(product) {
+      currentProductId = product.id;
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('product-content').style.display = 'block';
+
+      const preview = document.getElementById('product-preview');
+      if (product.preview_url) {
+        preview.innerHTML = '<img src="' + product.preview_url + '" alt="' + product.name + '">';
+      }
+
+      document.getElementById('product-name').textContent = product.name;
+      document.getElementById('product-desc').textContent = product.description || '';
+
+      document.getElementById('product-price').textContent = product.price_usd ? '$' + product.price_usd : '';
+      document.getElementById('product-price-eth').textContent = product.price_eth ? '~' + product.price_eth + ' ETH' : '';
+
+      const featuresList = document.getElementById('features-list');
+      if (product.features && Array.isArray(product.features)) {
+        featuresList.innerHTML = product.features.map(function(f) { return '<li>' + f + '</li>'; }).join('');
+      }
+
+      document.getElementById('wallet-display').textContent = WALLET_ADDRESS;
+
+      document.getElementById('purchase-form').addEventListener('submit', function(e) {
+        submitPurchase(e, product.id);
+      });
+    }
+
+    function copyWallet() {
+      navigator.clipboard.writeText(WALLET_ADDRESS);
+      var btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+    }
+
+    async function submitPurchase(e, templateId) {
       e.preventDefault();
-      const btn=document.getElementById('submit-btn'), status=document.getElementById('form-status');
-      const {user}=await supabaseClient.auth.getUser();
-      if(!user) { status.innerHTML='<div class="error-message">Please <a href="dashboard.html" style="color:var(--accent)">sign in</a> first</div>'; return; }
-      btn.disabled=true; btn.textContent='Submitting...';
-      const {error}=await supabaseClient.from('purchases').insert({user_id:user.id,template_id:templateId,tx_hash:document.getElementById('tx-hash').value,sender_wallet:document.getElementById('sender-wallet').value,discord_username:document.getElementById('discord').value||null,status:'pending'});
-      if(error) { status.innerHTML=`<div class="error-message">${error.code==='23505'?'TX already used':error.message}</div>`; }
-      else { status.innerHTML='<div class="success-message">Submitted! Check dashboard for status.</div>'; document.getElementById('purchase-form').reset(); }
-      btn.disabled=false; btn.textContent='Submit';
+      var btn = document.getElementById('submit-btn');
+      var statusEl = document.getElementById('form-status');
+      var user = await sbGetUser();
+
+      if (!user) {
+        statusEl.innerHTML = '<div class="alert alert-error">Please <a href="dashboard.html" style="color:var(--accent)">sign in</a> first.</div>';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      sbLog.info('Submitting purchase', { templateId: templateId, user: user.id });
+
+      try {
+        await sbInsert('purchases', {
+          user_id: user.id,
+          template_id: templateId,
+          tx_hash: document.getElementById('tx-hash').value.trim(),
+          sender_wallet: document.getElementById('sender-wallet').value.trim(),
+          discord_username: document.getElementById('discord').value.trim() || null,
+          status: 'pending'
+        });
+        sbLog.ok('Purchase submitted');
+        statusEl.innerHTML = '<div class="alert alert-success">Submitted! Check your dashboard for verification status.</div>';
+        document.getElementById('purchase-form').reset();
+      } catch (err) {
+        sbLog.error('Purchase submit failed', err);
+        var msg = err.code === '23505' ? 'This transaction hash has already been used.' : (err.message || 'Submission failed');
+        statusEl.innerHTML = '<div class="alert alert-error">' + msg + '</div>';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Submit';
     }
-    document.addEventListener('DOMContentLoaded',loadProduct);
+
+    document.addEventListener('DOMContentLoaded', loadProduct);
   </script>
 </body>
 </html>

@@ -3,596 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weave — Premium Tailwind Templates</title>
-  
-  <!-- Fonts -->
+  <title>Weave — Premium Templates. Pay with Crypto.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
-  
-  <!-- Supabase + Config -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/config.js"></script>
-  
-  <style>
-    :root {
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #12121a;
-      --bg-card: rgba(30, 30, 42, 0.6);
-      --text-primary: #ffffff;
-      --text-secondary: #8b8b9a;
-      --accent: #f59e0b;
-      --accent-glow: rgba(245, 158, 11, 0.4);
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Outfit', -apple-system, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    
-    /* Animated background */
-    .bg-mesh {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      overflow: hidden;
-    }
-    
-    .bg-mesh::before {
-      content: '';
-      position: absolute;
-      width: 150%;
-      height: 150%;
-      top: -25%;
-      left: -25%;
-      background: 
-        radial-gradient(ellipse at 20% 30%, rgba(245, 158, 11, 0.15) 0%, transparent 40%),
-        radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
-        radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
-      animation: meshMove 20s ease-in-out infinite;
-    }
-    
-    @keyframes meshMove {
-      0%, 100% { transform: translate(0, 0) rotate(0deg); }
-      33% { transform: translate(2%, -2%) rotate(1deg); }
-      66% { transform: translate(-1%, 1%) rotate(-1deg); }
-    }
-    
-    /* Glass card */
-    .glass-card {
-      background: var(--bg-card);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    
-    .glass-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(245, 158, 11, 0.1);
-      border-color: rgba(245, 158, 11, 0.3);
-    }
-    
-    /* Header */
-    .site-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      padding: 1rem 2rem;
-      background: rgba(10, 10, 15, 0.8);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    
-    .logo {
-      font-family: 'Space Mono', monospace;
-      font-weight: 700;
-      font-size: 1.3rem;
-      color: var(--accent);
-      text-decoration: none;
-      letter-spacing: -0.02em;
-    }
-    
-    .nav-links a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.9rem;
-      margin-left: 2rem;
-      transition: color 0.2s;
-    }
-    
-    .nav-links a:hover {
-      color: var(--text-primary);
-    }
-    
-    /* Hero */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 8rem 2rem 4rem;
-    }
-    
-    .hero-badge {
-      display: inline-block;
-      padding: 0.5rem 1.25rem;
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      border-radius: 100px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 1.5rem;
-    }
-    
-    .hero-title {
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      margin-bottom: 1.5rem;
-    }
-    
-    .hero-title span {
-      background: linear-gradient(135deg, var(--accent), #f97316);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    .hero-subtitle {
-      font-size: 1.15rem;
-      color: var(--text-secondary);
-      max-width: 500px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.7;
-    }
-    
-    .btn-primary {
-      display: inline-block;
-      padding: 1rem 2.5rem;
-      background: var(--accent);
-      color: #000;
-      font-weight: 700;
-      font-size: 0.95rem;
-      border-radius: 100px;
-      text-decoration: none;
-      transition: all 0.3s;
-      border: none;
-      cursor: pointer;
-    }
-    
-    .btn-primary:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 30px var(--accent-glow);
-    }
-    
-    .btn-outline {
-      display: inline-block;
-      padding: 1rem 2.5rem;
-      background: transparent;
-      color: var(--text-primary);
-      font-weight: 600;
-      font-size: 0.95rem;
-      border-radius: 100px;
-      text-decoration: none;
-      border: 1px solid rgba(255,255,255,0.15);
-      margin-left: 1rem;
-      transition: all 0.3s;
-    }
-    
-    .btn-outline:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    
-    /* Products */
-    .products-section {
-      padding: 4rem 2rem;
-    }
-    
-    .section-title {
-      font-size: 2rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 0.5rem;
-    }
-    
-    .section-subtitle {
-      color: var(--text-secondary);
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-    
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    .product-card {
-      text-decoration: none;
-      color: inherit;
-      display: block;
-    }
-    
-    .product-preview {
-      aspect-ratio: 16/10;
-      background: var(--bg-secondary);
-      border-radius: 16px 16px 0 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-secondary);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.8rem;
-      overflow: hidden;
-      position: relative;
-    }
-    
-    .product-preview::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 60%;
-      background: linear-gradient(to top, var(--bg-card), transparent);
-    }
-    
-    .product-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .product-info {
-      padding: 1.5rem;
-    }
-    
-    .product-name {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-    
-    .product-desc {
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-      margin-bottom: 1rem;
-    }
-    
-    .product-price {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-    
-    .product-price span {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      font-weight: 400;
-    }
-    
-    /* Form inputs */
-    .form-input {
-      width: 100%;
-      padding: 0.9rem 1.25rem;
-      background: var(--bg-secondary);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: var(--text-primary);
-      font-size: 0.95rem;
-      font-family: inherit;
-      transition: all 0.2s;
-    }
-    
-    .form-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
-    }
-    
-    .form-input::placeholder {
-      color: var(--text-secondary);
-    }
-    
-    /* Wallet */
-    .wallet-box {
-      background: var(--bg-secondary);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 1rem;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.8rem;
-      word-break: break-all;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    
-    .wallet-address {
-      flex: 1;
-    }
-    
-    .copy-btn {
-      background: rgba(245, 158, 11, 0.2);
-      color: var(--accent);
-      border: none;
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    
-    .copy-btn:hover {
-      background: rgba(245, 158, 11, 0.35);
-    }
-    
-    /* Steps */
-    .steps-list {
-      list-style: none;
-      counter-reset: step;
-    }
-    
-    .steps-list li {
-      counter-increment: step;
-      padding: 1rem 0 1rem 3rem;
-      position: relative;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      line-height: 1.6;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .steps-list li::before {
-      content: counter(step);
-      position: absolute;
-      left: 0;
-      top: 1rem;
-      width: 1.75rem;
-      height: 1.75rem;
-      background: var(--accent);
-      color: #000;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.8rem;
-    }
-    
-    .steps-list li strong {
-      color: var(--text-primary);
-    }
-    
-    /* Dashboard */
-    .dashboard-container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 6rem 2rem 4rem;
-    }
-    
-    .auth-card {
-      max-width: 420px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    
-    .auth-card h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-    
-    .auth-card p {
-      color: var(--text-secondary);
-      margin-bottom: 2rem;
-    }
-    
-    .purchases-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    .purchases-table th {
-      text-align: left;
-      padding: 1rem;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-secondary);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    .purchases-table td {
-      padding: 1.25rem 1rem;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .status-badge {
-      padding: 0.3rem 0.8rem;
-      border-radius: 100px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    
-    .status-pending {
-      background: rgba(234, 179, 8, 0.15);
-      color: #eab308;
-    }
-    
-    .status-verified {
-      background: rgba(34, 197, 94, 0.15);
-      color: #22c55e;
-    }
-    
-    .status-rejected {
-      background: rgba(239, 68, 68, 0.15);
-      color: #ef4444;
-    }
-    
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 3rem 2rem;
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      margin-top: 4rem;
-    }
-    
-    /* Error states */
-    .error-message {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #ef4444;
-      padding: 1rem;
-      border-radius: 12px;
-      margin-top: 1rem;
-    }
-    
-    .success-message {
-      background: rgba(34, 197, 94, 0.15);
-      border: 1px solid rgba(34, 197, 94, 0.3);
-      color: #22c55e;
-      padding: 1rem;
-      border-radius: 12px;
-      margin-top: 1rem;
-    }
-    
-    /* Loading */
-    .skeleton {
-      background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(255,255,255,0.05) 50%, var(--bg-secondary) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 12px;
-    }
-    
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-    
-    @media (max-width: 768px) {
-      .btn-outline { margin-left: 0; margin-top: 1rem; }
-      .hero-title { font-size: 2rem; }
-    }
-  </style>
 </head>
 <body>
-  <div class="bg-mesh"></div>
-  
   <header class="site-header">
-    <a href="index.html" class="logo">Weave</a>
+    <a href="index.html" class="logo">
+      <span class="logo-icon">W</span>
+      Weave
+    </a>
     <nav class="nav-links">
-      <a href="index.html">Products</a>
+      <a href="#products">Products</a>
       <a href="faq.html">FAQ</a>
       <a href="dashboard.html">Dashboard</a>
     </nav>
   </header>
 
-  <!-- HOME PAGE -->
   <section class="hero">
+    <div class="hero-grid-overlay"></div>
     <div>
-      <div class="hero-badge">Now accepting ETH & USDC</div>
-      <h1 class="hero-title">Premium Templates.<br><span>Pay with Crypto.</span></h1>
-      <p class="hero-subtitle">High-quality Tailwind landing pages for startups. No subscriptions. No bank accounts. Just great design.</p>
-      <div>
-        <a href="#products" class="btn-primary">Browse Templates</a>
-        <a href="faq.html" class="btn-outline">How It Works</a>
+      <div class="hero-badge">ACCEPTING ETH & USDC</div>
+      <h1 class="hero-title">Premium Templates.<br><span class="gradient-text">Pay with Crypto.</span></h1>
+      <p class="hero-subtitle">High-quality Tailwind landing pages for startups. No subscriptions. No bank accounts. Just great design, owned by you.</p>
+      <div class="hero-actions">
+        <a href="#products" class="btn btn-primary">Browse Templates</a>
+        <a href="faq.html" class="btn btn-outline">FAQ</a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="hero-stat-value">$0</div><div class="hero-stat-label">monthly</div></div>
+        <div><div class="hero-stat-value">~5min</div><div class="hero-stat-label">verification</div></div>
+        <div><div class="hero-stat-value">100%</div><div class="hero-stat-label">on-chain</div></div>
       </div>
     </div>
   </section>
 
-  <section id="products" class="products-section">
-    <h2 class="section-title">Available Templates</h2>
-    <p class="section-subtitle">Hand-crafted, production-ready templates</p>
-    <div class="products-grid" id="product-grid">
-      <div class="skeleton" style="height:280px;"></div>
-      <div class="skeleton" style="height:280px;"></div>
-      <div class="skeleton" style="height:280px;"></div>
+  <section id="products" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Available Templates</h2>
+        <p class="section-subtitle">Hand-crafted, production-ready templates. Own them forever.</p>
+      </div>
+      <div id="product-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
+        <div class="skeleton" style="height:320px;"></div>
+        <div class="skeleton" style="height:320px;"></div>
+        <div class="skeleton" style="height:320px;"></div>
+        <div class="skeleton" style="height:320px;"></div>
+      </div>
     </div>
   </section>
 
-  <footer>
-    <p>Pay with ETH to: 0xbe9Db9c86B79617231a4861fb54ef278447D43fb</p>
+  <footer class="site-footer">
+    <p>Pay with ETH to: <span style="font-family:var(--font-display);color:var(--text);">0xbe9Db9c86B79617231a4861fb54ef278447D43fb</span></p>
     <p style="margin-top:0.5rem;">&copy; 2026 Weave</p>
   </footer>
 
+  <script src="js/supabase.js"></script>
   <script>
-    // Check if supabase is loaded
-    if (typeof supabase !== 'undefined' && typeof WEAVE_CONFIG !== 'undefined') {
-      console.log('Supabase initialized');
-    } else {
-      console.error('Supabase or config not loaded');
-    }
-
     async function loadProducts() {
       const grid = document.getElementById('product-grid');
-      
+      sbLog.info('Loading products...');
       try {
-        const { data, error } = await supabaseClient
-          .from('templates')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error('Supabase error:', error);
-          grid.innerHTML = '<div class="error-message" style="grid-column:1/-1;">Error loading products: ' + error.message + '</div>';
+        const data = await sbSelect('templates', { order: 'created_at' });
+        if (!data?.length) {
+          grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:3rem 0;">No templates available yet.</p>';
           return;
         }
-
-        if (!data || data.length === 0) {
-          grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-secondary);">No templates available yet.</p>';
-          return;
-        }
-
         grid.innerHTML = data.map(t => `
-          <a href="product.html?slug=${t.slug}" class="glass-card product-card">
-            <div class="product-preview">
-              ${t.preview_url ? `<img src="${t.preview_url}" alt="${t.name}">` : 'PREVIEW'}
-            </div>
-            <div class="product-info">
-              <div class="product-name">${t.name}</div>
-              <div class="product-desc">${t.description || ''}</div>
-              <div class="product-price">$${t.price_usd} <span>~${t.price_eth} ETH</span></div>
+          <a href="product.html?slug=${t.slug}" class="card">
+            <div class="card-preview">${t.preview_url ? `<img src="${t.preview_url}" alt="${t.name}">` : 'PREVIEW'}</div>
+            <div class="card-body">
+              <div class="card-title">${t.name}</div>
+              <div class="card-desc">${t.description || ''}</div>
+              <div class="card-price">$${t.price_usd} <span>~${t.price_eth} ETH</span></div>
             </div>
           </a>
         `).join('');
+        sbLog.ok(`Loaded ${data.length} products`);
       } catch (err) {
-        console.error('Error:', err);
-        grid.innerHTML = '<div class="error-message" style="grid-column:1/-1;">Something went wrong. Please refresh.</div>';
+        sbLog.error('Products load failed', err);
+        grid.innerHTML = '<div style="text-align:center;padding:3rem 0;color:var(--text-secondary);">Failed to load products. <button onclick="location.reload()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:0.5rem 1rem;cursor:pointer;margin-top:0.5rem;color:var(--text);">Retry</button></div>';
       }
     }
 
