@@ -4,14 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — Weave</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/style.css">
   <script src="js/config.js"></script>
 </head>
 <body>
   <header class="site-header">
     <div class="header-inner">
-      <a href="index.html" class="logo">Weave</a>
+      <a href="index.html" class="logo">
+        <span class="logo-icon">W</span>
+        Weave
+      </a>
       <nav class="nav-links">
         <a href="index.html">Products</a>
         <a href="faq.html">FAQ</a>
@@ -22,11 +24,10 @@
 
   <section class="page-section">
     <div class="container">
-      <h1 class="page-title">Dashboard</h1>
+      <h1 class="page-title" style="margin-bottom:2rem;">Dashboard</h1>
 
-      <!-- Auth section (shown when logged out) -->
-      <div id="auth-section" style="max-width:420px;">
-        <h2 id="auth-mode" style="font-size:1.25rem;font-weight:600;margin-bottom:1.5rem;">Sign In</h2>
+      <div id="auth-section" class="auth-card">
+        <h2 id="auth-mode" style="font-size:1.2rem;font-weight:600;margin-bottom:1.5rem;text-align:center;">Sign In</h2>
         <form onsubmit="handleAuth(event)">
           <div class="form-group">
             <label class="form-label" for="auth-email">Email</label>
@@ -36,36 +37,44 @@
             <label class="form-label" for="auth-password">Password</label>
             <input class="form-input" type="password" id="auth-password" required minlength="6" placeholder="Min 6 characters">
           </div>
-          <button class="btn btn-primary" type="submit" id="auth-submit">Sign In</button>
-          <p id="auth-status" style="margin-top:1rem;font-size:0.9rem;"></p>
+          <button class="btn btn-primary" type="submit" id="auth-submit" style="width:100%;">Sign In</button>
+          <p id="auth-status" style="margin-top:1rem;font-size:0.85rem;text-align:center;"></p>
         </form>
-        <p id="auth-toggle" style="margin-top:1.5rem;font-size:0.9rem;color:var(--text-secondary);">
+        <p id="auth-toggle" style="margin-top:1.5rem;font-size:0.85rem;color:var(--text-secondary);text-align:center;">
           Don't have an account? <a href="#" onclick="toggleAuthMode();return false;" class="text-accent">Sign up</a>
         </p>
       </div>
 
-      <!-- Dashboard section (shown when logged in) -->
       <div id="dashboard-section" style="display:none;">
-        <div class="flex items-center justify-between mb-4">
-          <p class="text-secondary">Signed in as <strong id="user-email" style="color:var(--text-primary);"></strong></p>
-          <button class="btn btn-outline btn-sm" onclick="handleSignOut()">Sign Out</button>
-        </div>
-
-        <h2 style="font-size:1.15rem;font-weight:600;margin-bottom:1rem;">My Purchases</h2>
-        <div style="background:var(--bg-card);border-radius:12px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Template</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Download</th>
-              </tr>
-            </thead>
-            <tbody id="purchases-body">
-              <tr><td colspan="4" style="text-align:center;padding:3rem;color:var(--text-secondary);">Loading...</td></tr>
-            </tbody>
-          </table>
+        <div class="dashboard-wrapper">
+          <div class="dashboard-sidebar">
+            <div class="user-info">
+              <div class="user-avatar">W</div>
+              <div class="user-email" id="user-email"></div>
+            </div>
+            <nav class="dashboard-nav">
+              <a href="#" class="active">My Purchases</a>
+              <a href="index.html">Browse Templates</a>
+              <a href="#" onclick="handleSignOut();return false;">Sign Out</a>
+            </nav>
+          </div>
+          <div>
+            <div class="glass" style="overflow:hidden;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Template</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Download</th>
+                  </tr>
+                </thead>
+                <tbody id="purchases-body">
+                  <tr><td colspan="4" style="text-align:center;padding:3rem;color:var(--text-tertiary);">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
