@@ -20,11 +20,39 @@
     </div>
   </header>
 
-  <section class="page-section">
+  <section class="hero-section">
     <div class="container">
-      <h1 class="page-title">Premium Tailwind Templates</h1>
-      <p class="page-subtitle">Clean, responsive landing pages. Built fast. Pay with crypto.</p>
-      <div class="grid grid-3 gap-4" id="product-grid">
+      <div class="hero-badge">Now accepting ETH & USDC</div>
+      <h1 class="hero-title">Premium Templates.<br><span class="gradient">Pay with Crypto.</span></h1>
+      <p class="hero-subtitle">High-quality Tailwind CSS landing pages for startups and founders. No subscription. No bank account needed. Just you, your wallet, and great design.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <a href="#templates" class="btn btn-primary" onclick="document.getElementById('templates').scrollIntoView({behavior:'smooth'});return false;">Browse Templates</a>
+        <a href="faq.html" class="btn btn-outline">How It Works</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value">$0</div>
+          <div class="hero-stat-label">Monthly costs</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">~5 min</div>
+          <div class="hero-stat-label">Verification time</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">100%</div>
+          <div class="hero-stat-label">On-chain payments</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section" id="templates">
+    <div class="container">
+      <div class="section-header fade-in">
+        <h2 class="section-title">Available Templates</h2>
+        <p class="section-subtitle">Each template is hand-crafted, fully responsive, and ready to deploy.</p>
+      </div>
+      <div class="grid grid-3 gap-4 fade-in" id="product-grid">
         <!-- Product cards loaded dynamically -->
       </div>
     </div>
@@ -40,9 +68,19 @@
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/supabase-client.js"></script>
   <script>
+    // Fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Load products
     async function loadProducts() {
       const grid = document.getElementById('product-grid');
-      grid.innerHTML = '<div class="skeleton" style="height:280px;"></div>'.repeat(3);
+      grid.innerHTML =
+        '<div class="skeleton" style="height:300px;"></div>' +
+        '<div class="skeleton" style="height:300px;"></div>' +
+        '<div class="skeleton" style="height:300px;"></div>';
 
       try {
         const { data, error } = await supabaseClient
@@ -53,7 +91,7 @@
         if (error) throw error;
 
         if (!data || data.length === 0) {
-          grid.innerHTML = '<p class="text-secondary" style="grid-column:1/-1;">No templates available yet. Check back soon.</p>';
+          grid.innerHTML = '<p class="text-secondary" style="grid-column:1/-1;text-align:center;padding:3rem 0;">No templates available yet. Check back soon.</p>';
           return;
         }
 
@@ -62,7 +100,7 @@
             <div class="card-preview">
               ${t.preview_url
                 ? `<img src="${t.preview_url}" alt="${t.name}" style="width:100%;height:100%;object-fit:cover;">`
-                : 'Preview coming soon'}
+                : '<span style="opacity:0.5;">Preview</span>'}
             </div>
             <div class="card-body">
               <div class="card-title">${t.name}</div>
@@ -72,7 +110,7 @@
           </a>
         `).join('');
       } catch (err) {
-        grid.innerHTML = '<p class="text-secondary" style="grid-column:1/-1;">Failed to load products. Please try again later.</p>';
+        grid.innerHTML = '<p class="text-secondary" style="grid-column:1/-1;text-align:center;padding:3rem 0;">Failed to load products. Please try again later.</p>';
       }
     }
 
