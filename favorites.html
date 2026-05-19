@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favorites — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/storage.js"></script>
+  <script src="js/services/templates.js"></script>
+  <script src="js/services/purchases.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
+    <nav class="nav-links">
+      <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
+      <a href="faq.html">FAQ</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title font-display">Your Favorites</h1>
+      <p class="page-subtitle" id="fav-count">Loading...</p>
+    </div>
+
+    <div id="favorites-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem;"></div>
+  </div>
+
+  <script>
+    async function init() {
+      const user = await sbGetUser();
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      loadFavorites();
+    }
+
+    async function loadFavorites() {
+      const grid = document.getElementById('favorites-grid');
+      const count = document.getElementById('fav-count');
+      try {
+        const favs = await sbTemplates.getFavorites();
+        if (!favs?.length) {
+          count.textContent = 'No favorites yet';
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon">&#9825;</div><div class="empty-state-text">No favorites yet. <a href="templates.html" style="color:var(--accent);">Browse templates</a></div></div>';
+          return;
+        }
+        count.textContent = favs.length + ' template' + (favs.length !== 1 ? 's' : '');
+        grid.innerHTML = favs.map(t => `
+          <div class="card">
+            <div class="card-preview">
+              ${t.preview_url ? '<img src="' + t.preview_url + '" alt="' + t.name + '">' : 'Preview'}
+            </div>
+            <div class="card-body">
+              <div class="card-title">${t.name || 'Untitled'}</div>
+              ${t.description ? '<div class="card-desc">' + t.description + '</div>' : ''}
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div class="card-price">${t.price || 'Free'} <span>SOL</span></div>
+                <button class="btn btn-outline btn-sm" onclick="removeFavorite(${t.id})">Remove</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        sbLog.error('Failed loading favorites', err);
+        count.textContent = 'Error loading favorites';
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-text">Failed to load favorites. Please try again.</div></div>';
+      }
+    }
+
+    async function removeFavorite(id) {
+      try {
+        await sbTemplates.toggleFavorite(id);
+        sbNotify.success('Removed from favorites');
+        loadFavorites();
+      } catch (err) {
+        sbLog.error('Failed to remove favorite', err);
+        sbNotify.error('Failed to remove favorite.');
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -9,27 +9,34 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/storage.js"></script>
+  <script src="js/services/templates.js"></script>
+  <script src="js/services/purchases.js"></script>
 </head>
 <body>
   <header class="site-header">
     <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
     <nav class="nav-links">
       <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
       <a href="faq.html">FAQ</a>
-      <a href="#">Dashboard</a>
+      <a href="dashboard.html">Dashboard</a>
     </nav>
   </header>
 
   <div class="container">
     <div class="page-header">
       <h1 class="page-title font-display">Dashboard</h1>
-      <p class="page-subtitle">Manage your purchases and downloads</p>
+      <p class="page-subtitle">Manage your purchases and favorites</p>
     </div>
 
-    <!-- Auth section (logged out) -->
     <div id="auth-section" class="glass auth-card" style="padding:2.5rem;">
       <h2 id="auth-title" class="font-display" style="font-size:1.35rem;font-weight:700;margin-bottom:0.35rem;">Sign In</h2>
-      <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;">Sign in to access your purchases</p>
+      <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;">Sign in to access your dashboard</p>
       <form onsubmit="handleAuth(event)">
         <div class="form-group">
           <label class="form-label" for="auth-email">Email</label>
@@ -41,37 +48,46 @@
         </div>
         <button class="btn btn-accent" type="submit" id="auth-btn" style="width:100%;margin-top:0.5rem;">Sign In</button>
         <div id="auth-status"></div>
-        <p id="auth-toggle" style="margin-top:1.5rem;font-size:0.85rem;color:var(--text-secondary);text-align:center;">
+        <p id="auth-toggle" style="margin-top:1.25rem;font-size:0.85rem;color:var(--text-secondary);text-align:center;">
           Don't have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);font-weight:600;">Sign up</a>
         </p>
       </form>
     </div>
 
-    <!-- Dashboard section (logged in) -->
     <div id="dashboard-section" style="display:none;">
       <div class="dashboard-wrapper">
         <aside class="dash-sidebar">
           <div class="user-avatar" id="user-avatar">U</div>
           <div class="user-email" id="user-email">user@example.com</div>
           <nav class="dash-nav">
-            <a href="#" class="active">My Purchases</a>
-            <a href="index.html">Browse Templates</a>
+            <a href="#" class="active" onclick="switchTab('purchases');return false;">My Purchases</a>
+            <a href="#" onclick="switchTab('favorites');return false;">Favorites</a>
+            <a href="templates.html">Browse Templates</a>
+            <a href="settings.html">Settings</a>
             <a href="#" onclick="handleSignOut();return false;" style="margin-top:0.5rem;color:var(--error);">Sign Out</a>
           </nav>
         </aside>
         <main>
-          <div class="glass" style="padding:1.5rem 0;overflow:hidden;">
-            <div style="padding:0 1.5rem 1rem;border-bottom:1px solid var(--border);">
-              <h2 class="font-display" style="font-size:1.1rem;font-weight:700;">Purchases</h2>
+          <div id="purchases-tab">
+            <div class="glass" style="padding:1.5rem 0;overflow:hidden;">
+              <div style="padding:0 1.5rem 1rem;border-bottom:1px solid var(--border);">
+                <h2 class="font-display" style="font-size:1.1rem;font-weight:700;">Purchases</h2>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr><th>Template</th><th>Date</th><th>Status</th><th>Download</th></tr>
+                </thead>
+                <tbody id="purchases-body">
+                  <tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-secondary);">Loading...</td></tr>
+                </tbody>
+              </table>
             </div>
-            <table class="data-table">
-              <thead>
-                <tr><th>Template</th><th>Date</th><th>Status</th><th>Download</th></tr>
-              </thead>
-              <tbody id="purchases-body">
-                <tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-secondary);">Loading...</td></tr>
-              </tbody>
-            </table>
+          </div>
+          <div id="favorites-tab" style="display:none;">
+            <div class="glass" style="padding:1.5rem;">
+              <h2 class="font-display" style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">Favorites</h2>
+              <div id="favorites-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;"></div>
+            </div>
           </div>
         </main>
       </div>
@@ -79,6 +95,9 @@
   </div>
 
   <script>
+    let currentTab = 'purchases';
+    let favoriteIds = new Set();
+
     async function init() {
       const user = await sbGetUser();
       if (user) {
@@ -86,7 +105,8 @@
         document.getElementById('dashboard-section').style.display = 'block';
         document.getElementById('user-email').textContent = user.email;
         document.getElementById('user-avatar').textContent = user.email.charAt(0).toUpperCase();
-        loadPurchases(user.id);
+        loadPurchases();
+        loadFavorites();
       }
     }
 
@@ -97,17 +117,15 @@
       const email = document.getElementById('auth-email').value;
       const pass = document.getElementById('auth-password').value;
       const isSignup = btn.dataset.mode === 'signup';
-
       btn.disabled = true;
       btn.textContent = '...';
-
       try {
         if (isSignup) {
-          const data = await sbSignUp(email, pass);
+          await sbAuth.signUp(email, pass);
           sbLog.ok('Signed up', email);
           status.innerHTML = '<div class="alert alert-success">Check your email to confirm! (Check spam too)</div>';
         } else {
-          await sbSignIn(email, pass);
+          await sbAuth.signIn(email, pass);
           sbLog.ok('Signed in', email);
           status.innerHTML = '<div class="alert alert-success">Signed in! Loading dashboard...</div>';
           setTimeout(() => location.reload(), 500);
@@ -116,7 +134,6 @@
         sbLog.error('Auth error', err.message);
         status.innerHTML = '<div class="alert alert-error">' + err.message + '</div>';
       }
-
       btn.disabled = false;
       btn.textContent = isSignup ? 'Sign Up' : 'Sign In';
     }
@@ -130,27 +147,30 @@
       btn.textContent = isSignup ? 'Sign Up' : 'Sign In';
       title.textContent = isSignup ? 'Create Account' : 'Sign In';
       toggle.innerHTML = isSignup
-        ? 'Already have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);">Sign in</a>'
-        : 'Don\'t have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);">Sign up</a>';
+        ? 'Already have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);font-weight:600;">Sign in</a>'
+        : 'Don\'t have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);font-weight:600;">Sign up</a>';
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('purchases-tab').style.display = tab === 'purchases' ? 'block' : 'none';
+      document.getElementById('favorites-tab').style.display = tab === 'favorites' ? 'block' : 'none';
+      document.querySelectorAll('.dash-nav a').forEach(a => a.classList.remove('active'));
+      document.querySelectorAll('.dash-nav a')[tab === 'purchases' ? 0 : 1].classList.add('active');
     }
 
     async function handleSignOut() {
-      await sbSignOut();
+      await sbAuth.signOut();
       sbLog.info('Signed out');
       location.reload();
     }
 
-    async function loadPurchases(userId) {
+    async function loadPurchases() {
       const tbody = document.getElementById('purchases-body');
-      sbLog.info('Loading purchases for', userId);
       try {
-        const data = await sbSelect('purchases', {
-          select: '*,templates(name)',
-          eq: ['user_id', userId],
-          order: 'created_at'
-        });
+        const data = await sbPurchases.list();
         if (!data?.length) {
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-secondary);">No purchases yet. <a href="index.html" style="color:var(--accent);">Browse templates</a></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-secondary);">No purchases yet. <a href="templates.html" style="color:var(--accent);">Browse templates</a></td></tr>';
           return;
         }
         tbody.innerHTML = data.map(p => {
@@ -159,7 +179,7 @@
           const btn = p.status === 'verified'
             ? '<button class="btn btn-accent btn-sm" onclick="downloadTemplate(' + p.template_id + ')">Download</button>'
             : '<span style="color:var(--text-tertiary);font-size:0.85rem;">\u2014</span>';
-          return '<tr><td>' + (p.templates?.name || 'Unknown') + '</td><td style="color:var(--text-secondary);">' + new Date(p.created_at).toLocaleDateString() + '</td><td><span class="' + badge + '">' + p.status + '</span></td><td>' + btn + '</td></tr>';
+          return '<tr><td>' + (p.templates?.name || p.template_name || 'Unknown') + '</td><td style="color:var(--text-secondary);">' + new Date(p.created_at).toLocaleDateString() + '</td><td><span class="' + badge + '">' + p.status + '</span></td><td>' + btn + '</td></tr>';
         }).join('');
       } catch (err) {
         sbLog.error('Failed loading purchases', err);
@@ -169,14 +189,47 @@
 
     async function downloadTemplate(templateId) {
       try {
-        const t = await sbSelect('templates', { select: 'storage_path', eq: ['id', templateId], single: true });
-        if (!t) return;
-        const url = await sbSignedUrl(t.storage_path);
+        const url = await sbPurchases.getDownloadUrl(templateId);
         window.open(url, '_blank');
         sbLog.ok('Download link generated');
       } catch (err) {
         sbLog.error('Download failed', err);
-        alert('Failed to generate download link.');
+        sbNotify.error('Failed to generate download link.');
+      }
+    }
+
+    async function loadFavorites() {
+      const grid = document.getElementById('favorites-grid');
+      try {
+        const favs = await sbTemplates.getFavorites();
+        if (!favs?.length) {
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-text">No favorites yet. <a href="templates.html" style="color:var(--accent);">Browse templates</a></div></div>';
+          return;
+        }
+        favoriteIds = new Set(favs.map(f => f.id));
+        grid.innerHTML = favs.map(t => `
+          <div class="card" style="cursor:default;">
+            <div class="card-body">
+              <div class="card-title">${t.name}</div>
+              <div class="card-price">${t.price || 'Free'} <span>SOL</span></div>
+              <button class="btn btn-outline btn-sm" style="margin-top:0.75rem;width:100%;" onclick="removeFavorite(${t.id})">Remove</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        sbLog.error('Failed loading favorites', err);
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-text">Failed to load favorites.</div></div>';
+      }
+    }
+
+    async function removeFavorite(id) {
+      try {
+        await sbTemplates.toggleFavorite(id);
+        sbNotify.success('Removed from favorites');
+        loadFavorites();
+      } catch (err) {
+        sbLog.error('Failed to remove favorite', err);
+        sbNotify.error('Failed to remove favorite.');
       }
     }
 

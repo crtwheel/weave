@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio Meta — Digital Agency</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .agency-header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; background: rgba(29,29,31,0.85); backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .agency-header .logo { color: #fff; }
+    .agency-header .nav-links a { color: rgba(255,255,255,0.55); }
+    .agency-header .nav-links a:hover { color: #fff; }
+    .agency-hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 8rem 2rem 4rem; position: relative; overflow: hidden; background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 40%, #16213e 100%); }
+    .agency-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.08) 0%, transparent 60%); pointer-events: none; }
+    .agency-hero h1 { color: #fff; font-size: clamp(2.5rem, 6vw, 4.5rem); }
+    .agency-hero p { color: rgba(255,255,255,0.5); }
+    .agency-hero .hero-badge { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.25); }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem; }
+    .service-card { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 2rem; text-align: center; transition: all 0.3s; }
+    .service-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: rgba(245,158,11,0.2); }
+    .service-icon { width: 56px; height: 56px; border-radius: var(--radius-md); background: var(--accent-soft); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 1.5rem; color: var(--accent); }
+    .case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    .case-card { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); overflow: hidden; transition: all 0.3s; }
+    .case-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .case-preview { aspect-ratio: 16/10; background: var(--bg-alt); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 0.7rem; color: var(--text-tertiary); }
+    .case-body { padding: 1.5rem; }
+    .case-body h3 { font-size: 1.05rem; margin-bottom: 0.35rem; }
+    .case-body .result { font-size: 0.82rem; color: var(--accent); font-weight: 600; font-family: var(--font-display); margin-top: 0.75rem; }
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; text-align: center; }
+    .team-card { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 2rem 1.5rem; transition: all 0.3s; }
+    .team-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .team-avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--accent-soft); margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; color: var(--accent); }
+    .team-name { font-size: 0.95rem; font-weight: 600; }
+    .team-role { font-size: 0.78rem; color: var(--text-tertiary); }
+    .timeline { position: relative; padding: 2rem 0; max-width: 700px; margin: 0 auto; }
+    .timeline::before { content: ''; position: absolute; left: 19px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .timeline-item { position: relative; padding-left: 3.5rem; padding-bottom: 2.5rem; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot { position: absolute; left: 11px; top: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--accent); z-index: 1; }
+    .timeline-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .timeline-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .team-section { background: var(--bg-alt); }
+    .process-section { background: var(--bg); }
+    .contact-section { background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%); text-align: center; padding: 5rem 2rem; position: relative; }
+    .contact-section h2 { color: #fff; }
+    .contact-section p { color: rgba(255,255,255,0.5); }
+    @media (max-width: 640px) { .case-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="agency-header">
+    <a href="../../index.html" class="logo"><span class="logo-icon">W</span>Studio Meta</a>
+    <nav class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#work">Work</a>
+      <a href="#team">Team</a>
+      <a href="#contact" class="btn btn-accent btn-sm">Get in Touch</a>
+    </nav>
+  </header>
+
+  <section class="agency-hero">
+    <div>
+      <span class="hero-badge animate-fade-in-down">AWARD-WINNING AGENCY</span>
+      <h1 class="hero-title animate-fade-in animate-delay-1">We Build Brands<br>That <span class="gradient-text">Matter.</span></h1>
+      <p class="hero-subtitle animate-fade-in animate-delay-2">A digital agency crafting purpose-driven websites, products, and identities for companies that refuse to blend in.</p>
+      <div class="hero-actions animate-fade-in animate-delay-3">
+        <a href="#contact" class="btn" style="background:#fff;color:#0a0a0f;">Start a Project</a>
+        <a href="#work" class="btn" style="background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);">View Our Work</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">What We Do</h2>
+        <p class="section-subtitle">Full-service design and development for modern brands.</p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card"><div class="service-icon">&#x1F3A8;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Brand Identity</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Logos, color systems, typography, and brand guidelines that tell your story.</p></div>
+        <div class="service-card"><div class="service-icon">&#x1F3A8;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Web Design</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Beautiful, performant websites designed for conversion and crafted for impact.</p></div>
+        <div class="service-card"><div class="service-icon">&#x1F4F1;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">App Development</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Native and cross-platform apps that deliver seamless user experiences.</p></div>
+        <div class="service-card"><div class="service-icon">&#x1F4CA;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Product Strategy</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Research, roadmapping, and validation to build products people actually need.</p></div>
+        <div class="service-card"><div class="service-icon">&#x1F4E3;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Digital Marketing</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Data-driven campaigns that grow your audience and drive measurable results.</p></div>
+        <div class="service-card"><div class="service-icon">&#x2699;&#xFE0F;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Ongoing Support</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Maintenance, hosting, and growth support to keep your product evolving.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="work" class="section" style="background:var(--bg-alt);">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Selected Work</h2>
+        <p class="section-subtitle">Real results for real clients. Here's what we've built together.</p>
+      </div>
+      <div class="case-grid">
+        <div class="case-card">
+          <div class="case-preview">CASE STUDY</div>
+          <div class="case-body">
+            <h3>Finova — Fintech Dashboard</h3>
+            <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Redesigned their analytics platform, resulting in 45% higher user engagement and a 30% reduction in support tickets.</p>
+            <div class="result">↑ 45% Engagement</div>
+          </div>
+        </div>
+        <div class="case-card">
+          <div class="case-preview">CASE STUDY</div>
+          <div class="case-body">
+            <h3>Bloom — E-Commerce Brand</h3>
+            <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Complete brand overhaul and Shopify rebuild. Conversion rate increased by 28% within 2 weeks of launch.</p>
+            <div class="result">↑ 28% Conversion</div>
+          </div>
+        </div>
+        <div class="case-card">
+          <div class="case-preview">CASE STUDY</div>
+          <div class="case-body">
+            <h3>Pulse — SaaS Platform</h3>
+            <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Designed and developed their MVP from scratch. Secured $2M seed funding within 3 months of launch.</p>
+            <div class="result">$2M Seed Funded</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="process" class="process-section section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">How We Work</h2>
+        <p class="section-subtitle">A proven process that delivers results — on time and on budget.</p>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">01 — Discovery</div><div class="timeline-desc">We dive deep into your business, audience, and goals. Research, stakeholder interviews, and competitive analysis.</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">02 — Strategy</div><div class="timeline-desc">We define the vision: information architecture, user flows, content strategy, and technical approach.</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">03 — Design</div><div class="timeline-desc">Wireframes, prototypes, and visual design. Iterative feedback loops until every pixel is purposeful.</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">04 — Development</div><div class="timeline-desc">Clean, performant code with continuous deployment. We build for scale and maintainability from day one.</div></div>
+        <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">05 — Launch & Beyond</div><div class="timeline-desc">Deployment, testing, and post-launch support. We stand by our work long after the launch date.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="team" class="team-section section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Meet the Team</h2>
+        <p class="section-subtitle">A small, mighty team of designers, developers, and strategists.</p>
+      </div>
+      <div class="team-grid">
+        <div class="team-card"><div class="team-avatar">AK</div><div class="team-name">Alex Kim</div><div class="team-role">Founder & Creative Director</div></div>
+        <div class="team-card"><div class="team-avatar">MJ</div><div class="team-name">Maya Johnson</div><div class="team-role">Lead Designer</div></div>
+        <div class="team-card"><div class="team-avatar">CR</div><div class="team-name">Carlos Rivera</div><div class="team-role">Senior Developer</div></div>
+        <div class="team-card"><div class="team-avatar">LT</div><div class="team-name">Lena Tan</div><div class="team-role">Product Strategist</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact-section">
+    <div>
+      <span class="hero-badge" style="background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.25);">LET'S BUILD SOMETHING</span>
+      <h2 class="hero-title" style="font-size:clamp(2rem,4vw,3rem);margin-bottom:0.75rem;">Ready to Start Your Project?</h2>
+      <p style="color:rgba(255,255,255,0.5);max-width:480px;margin:0 auto 2rem;line-height:1.6;">Tell us about your project and we'll get back to you within 24 hours with a proposal and estimated timeline.</p>
+      <div class="hero-actions" style="justify-content:center;">
+        <a href="mailto:hello@studiometa.com" class="btn btn-accent">hello@studiometa.com</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--bg-alt);">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Client Results</h2>
+        <p class="section-subtitle">What our numbers say about the work we do.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:2rem;text-align:center;">
+        <div><div class="stat-value" style="font-size:2.5rem;">60+</div><div class="stat-label">Projects Delivered</div></div>
+        <div><div class="stat-value" style="font-size:2.5rem;">98%</div><div class="stat-label">Client Satisfaction</div></div>
+        <div><div class="stat-value" style="font-size:2.5rem;">12</div><div class="stat-label">Team Members</div></div>
+        <div><div class="stat-value" style="font-size:2.5rem;">4.9</div><div class="stat-label">Avg. Rating</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--bg)">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">What Clients Say</h2>
+        <p class="section-subtitle">Kind words from people we've had the pleasure of working with.</p>
+      </div>
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Studio Meta didn't just build us a website — they helped us define our entire brand identity. The process was collaborative, transparent, and the result exceeded every expectation."</p>
+          <div class="testimonial-author"><div class="testimonial-avatar">SK</div><div><div class="testimonial-name">Sarah Kim</div><div class="testimonial-role">CEO, Pulse Analytics</div></div></div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Working with Studio Meta was a turning point for our startup. They took our rough ideas and turned them into a polished product that investors loved. We closed our seed round within weeks."</p>
+          <div class="testimonial-author"><div class="testimonial-avatar">MR</div><div><div class="testimonial-name">Marcus Rivera</div><div class="testimonial-role">Founder, Forge Labs</div></div></div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"The team's ability to blend beautiful design with solid engineering is rare. They're not just designers who can code — they're thinkers who solve real business problems."</p>
+          <div class="testimonial-author"><div class="testimonial-avatar">AL</div><div><div class="testimonial-name">Aisha Lopez</div><div class="testimonial-role">VP Product, Beacon Inc.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer" style="background:#0a0a0f;color:rgba(255,255,255,0.3);border-top-color:rgba(255,255,255,0.06);">
+    <p>&copy; 2026 Studio Meta. Crafted with purpose.</p>
+  </footer>
+</body>
+</html>

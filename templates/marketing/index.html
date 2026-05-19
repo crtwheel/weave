@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flow — All-in-One Marketing Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .sales-hero { min-height: 85vh; display: flex; align-items: center; justify-content: center; padding: 8rem 2rem 4rem; text-align: center; position: relative; overflow: hidden; background: linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%); }
+    .sales-hero h1 { font-size: clamp(2.2rem, 5vw, 4rem); max-width: 800px; margin: 0 auto 1.25rem; }
+    .problem-section { background: var(--bg-alt); }
+    .problem-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 2rem; text-align: center; transition: all 0.3s; }
+    .problem-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .solution-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+    .solution-card { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 2rem; transition: all 0.3s; position: relative; }
+    .solution-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(245,158,11,0.2); }
+    .solution-icon { width: 48px; height: 48px; border-radius: var(--radius-sm); background: var(--accent-soft); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: var(--accent); margin-bottom: 1rem; }
+    .benefit-list { list-style: none; }
+    .benefit-list li { padding: 0.75rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 0.75rem; align-items: flex-start; font-size: 0.9rem; color: var(--text-secondary); }
+    .benefit-list li:last-child { border-bottom: none; }
+    .benefit-list li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+    .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .testimonial-card { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 1.75rem; transition: all 0.3s; }
+    .testimonial-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .testimonial-stars { color: var(--accent); font-size: 0.9rem; margin-bottom: 0.75rem; letter-spacing: 2px; }
+    .testimonial-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1.25rem; }
+    .testimonial-author { display: flex; align-items: center; gap: 0.75rem; }
+    .testimonial-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-soft); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; color: var(--accent); }
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; align-items: start; }
+    .pricing-card { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 2.5rem 2rem; text-align: center; transition: all 0.3s; position: relative; }
+    .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .pricing-card.featured { border-color: var(--accent); border-width: 2px; transform: scale(1.03); }
+    .pricing-card.featured:hover { transform: scale(1.03) translateY(-4px); }
+    .pricing-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 999px; background: var(--accent); color: #fff; font-family: var(--font-display); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+    .pricing-amount { font-size: 2.75rem; font-weight: 700; font-family: var(--font-display); color: var(--text); margin-bottom: 0.25rem; }
+    .pricing-amount span { font-size: 1rem; color: var(--text-tertiary); font-weight: 400; font-family: var(--font-body); }
+    .pricing-desc { color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 1.5rem; }
+    .pricing-features { list-style: none; text-align: left; margin: 0 0 1.75rem; }
+    .pricing-features li { padding: 0.5rem 0; font-size: 0.85rem; color: var(--text-secondary); display: flex; gap: 0.5rem; align-items: center; }
+    .pricing-features li::before { content: '✓'; color: var(--success); font-weight: 700; }
+    .pricing-features li.missing { color: var(--text-tertiary); }
+    .pricing-features li.missing::before { content: '—'; color: var(--text-tertiary); }
+    .trust-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 2.5rem; align-items: center; padding: 2rem 0; }
+    .trust-item { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+    .trust-item svg { width: 32px; height: 32px; color: var(--text-tertiary); }
+    .trust-item span { font-size: 0.7rem; color: var(--text-tertiary); font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.05em; }
+    .counter-grid { display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap; margin: 3rem 0; }
+    .counter-item { text-align: center; }
+    .counter-value { font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+    .counter-label { font-size: 0.82rem; color: var(--text-tertiary); margin-top: 0.15rem; }
+    .cta-section { background: var(--bg-alt); text-align: center; padding: 5rem 2rem; }
+    @media (max-width: 768px) { .pricing-card.featured { transform: none; } .pricing-card.featured:hover { transform: translateY(-4px); } .counter-grid { gap: 1.5rem; } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../../index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
+    <nav class="nav-links">
+      <a href="#">Product</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#cta" class="btn btn-accent btn-sm">Get Started</a>
+    </nav>
+  </header>
+
+  <section class="sales-hero">
+    <div>
+      <span class="hero-badge animate-fade-in">NEW — Launch Day 2026</span>
+      <h1 class="animate-fade-in animate-delay-1">Stop Losing Leads.<br><span class="gradient-text">Start Converting.</span></h1>
+      <p class="hero-subtitle animate-fade-in animate-delay-2">Flow is the all-in-one marketing platform that turns visitors into customers — with AI-powered campaigns, smart segmentation, and real-time analytics.</p>
+      <div class="hero-actions animate-fade-in animate-delay-3">
+        <a href="#cta" class="btn btn-primary">Start Free Trial</a>
+        <a href="#demo" class="btn btn-outline">Book a Demo</a>
+      </div>
+      <div class="trust-bar animate-fade-in animate-delay-4" style="margin-top:2.5rem;">
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Fast Setup</span></div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>SOC 2</span></div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span>99.9% Uptime</span></div>
+        <div class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>GDPR Ready</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section problem-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">The Hard Truth About Marketing Today</h2>
+        <p class="section-subtitle">Fragmented tools, shrinking attention spans, and rising acquisition costs are making it harder than ever to grow.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.5rem;">
+        <div class="problem-card"><div style="font-size:2rem;margin-bottom:0.75rem;">&#x1F4CA;</div><h3 class="font-display" style="font-size:0.95rem;margin-bottom:0.5rem;">Data Silos</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Your email, ads, analytics, and CRM aren't talking to each other. You're flying blind.</p></div>
+        <div class="problem-card"><div style="font-size:2rem;margin-bottom:0.75rem;">&#x23F0;</div><h3 class="font-display" style="font-size:0.95rem;margin-bottom:0.5rem;">Wasted Hours</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Teams spend 60% of their time on manual tasks instead of strategy and creativity.</p></div>
+        <div class="problem-card"><div style="font-size:2rem;margin-bottom:0.75rem;">&#x1F4B0;</div><h3 class="font-display" style="font-size:0.95rem;margin-bottom:0.5rem;">Rising CAC</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Customer acquisition costs have increased 50% in the last 2 years. Every dollar counts.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="solution" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Everything You Need, Unified</h2>
+        <p class="section-subtitle">One platform. One view of your customer. Infinite possibilities.</p>
+      </div>
+      <div class="solution-grid">
+        <div class="solution-card"><div class="solution-icon">&#x1F916;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">AI Campaigns</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Generate personalized email and SMS campaigns in seconds with AI that knows your brand voice.</p></div>
+        <div class="solution-card"><div class="solution-icon">&#x1F50D;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Smart Segmentation</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Automatically group contacts by behavior, demographics, and engagement. No manual tagging.</p></div>
+        <div class="solution-card"><div class="solution-icon">&#x1F4C8;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Real-Time Analytics</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Understand attribution, funnel drop-offs, and ROI — updated live, not yesterday's data.</p></div>
+        <div class="solution-card"><div class="solution-icon">&#x1F4E3;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Multi-Channel Flows</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Build drag-and-drop journeys across email, SMS, push, and in-app — all in one editor.</p></div>
+        <div class="solution-card"><div class="solution-icon">&#x1F6E1;&#xFE0F;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Compliance Suite</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">GDPR, CCPA, and CAN-SPAM compliance baked in. Consent management and audit trails included.</p></div>
+        <div class="solution-card"><div class="solution-icon">&#x1F517;</div><h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">300+ Integrations</h3><p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">Connect with Shopify, Stripe, Salesforce, HubSpot, and more. Your stack, unified.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--bg-alt);">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">What Makes Us Different</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:2rem;">
+        <div><ul class="benefit-list"><li>AI-powered personalization at scale — not just batch-and-blast</li><li>Unified customer view across every touchpoint</li><li>No-code automation builder with visual canvas</li><li>Real-time attribution you can actually trust</li></ul></div>
+        <div><ul class="benefit-list"><li>Enterprise-grade security with SOC 2 Type II certification</li><li>99.9% uptime SLA with 24/7 support</li><li>Built-in GDPR/CCPA compliance tools</li><li>Flat-rate pricing with no hidden fees</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+    <div class="container">
+      <div class="counter-grid">
+        <div class="counter-item"><div class="counter-value" data-target="12000">0</div><div class="counter-label">Active Customers</div></div>
+        <div class="counter-item"><div class="counter-value" data-target="500">0M+</div><div class="counter-label">Emails Sent</div></div>
+        <div class="counter-item"><div class="counter-value" data-target="99.9">0%</div><div class="counter-label">Uptime</div></div>
+        <div class="counter-item"><div class="counter-value" data-target="300">0+</div><div class="counter-label">Integrations</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="testimonials" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Trusted by Marketing Teams</h2>
+        <p class="section-subtitle">See why thousands of businesses switched to Flow.</p>
+      </div>
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Flow replaced five different tools. Our email engagement rates went up 40% in the first month alone. The AI segmentation is like having a full-time data scientist."</p>
+          <div class="testimonial-author"><div class="testimonial-avatar">JD</div><div><strong style="font-size:0.85rem;">Jessica Diaz</strong><br><span style="font-size:0.75rem;color:var(--text-tertiary);">CMO, Bloom Retail</span></div></div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"We were spending $15k/month on disparate tools. Flow consolidated everything for $3k and gave us better analytics. The ROI was immediate."</p>
+          <div class="testimonial-author"><div class="testimonial-avatar">TP</div><div><strong style="font-size:0.85rem;">Thomas Park</strong><br><span style="font-size:0.75rem;color:var(--text-tertiary);">Director of Growth, Forge SaaS</span></div></div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"The compliance suite alone saved us from a potential GDPR fine. Flow is the only marketing platform our legal team actually approves of."</p>
+          <div class="testimonial-author"><div class="testimonial-avatar">AW</div><div><strong style="font-size:0.85rem;">Alison Wu</strong><br><span style="font-size:0.75rem;color:var(--text-tertiary);">VP Marketing, Nexus Health</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="section" style="background:var(--bg-alt);">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Simple, Transparent Pricing</h2>
+        <p class="section-subtitle">No hidden fees. No surprise bills. Scale at your own pace.</p>
+      </div>
+      <div class="pricing-grid" style="max-width:960px;margin:0 auto;">
+        <div class="pricing-card">
+          <h3 class="font-display" style="font-size:1.1rem;margin-bottom:0.5rem;">Starter</h3>
+          <p class="pricing-desc">For small teams getting started</p>
+          <div class="pricing-amount">$0<span>/mo</span></div>
+          <ul class="pricing-features">
+            <li>Up to 1,000 contacts</li>
+            <li>Email campaigns</li>
+            <li>Basic analytics</li>
+            <li>Standard support</li>
+            <li class="missing">AI segmentation</li>
+            <li class="missing">Multi-channel flows</li>
+          </ul>
+          <a href="#cta" class="btn btn-outline" style="width:100%;">Get Started Free</a>
+        </div>
+        <div class="pricing-card featured">
+          <div class="pricing-badge">Most Popular</div>
+          <h3 class="font-display" style="font-size:1.1rem;margin-bottom:0.5rem;">Professional</h3>
+          <p class="pricing-desc">For growing teams</p>
+          <div class="pricing-amount">$49<span>/mo</span></div>
+          <ul class="pricing-features">
+            <li>Up to 10,000 contacts</li>
+            <li>Email + SMS campaigns</li>
+            <li>Advanced analytics</li>
+            <li>AI segmentation</li>
+            <li>Multi-channel flows</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="#cta" class="btn btn-primary" style="width:100%;">Start 14-Day Trial</a>
+        </div>
+        <div class="pricing-card">
+          <h3 class="font-display" style="font-size:1.1rem;margin-bottom:0.5rem;">Enterprise</h3>
+          <p class="pricing-desc">For organizations at scale</p>
+          <div class="pricing-amount">$149<span>/mo</span></div>
+          <ul class="pricing-features">
+            <li>Unlimited contacts</li>
+            <li>All channels</li>
+            <li>Custom analytics & reports</li>
+            <li>Dedicated account manager</li>
+            <li>SSO & audit logs</li>
+            <li>24/7 phone support</li>
+          </ul>
+          <a href="#cta" class="btn btn-outline" style="width:100%;">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cta" class="cta-section">
+    <div class="container">
+      <span class="hero-badge">START FREE — NO CREDIT CARD</span>
+      <h2 class="hero-title" style="font-size:clamp(2rem,4vw,3rem);margin-bottom:0.75rem;">Ready to Transform Your Marketing?</h2>
+      <p class="hero-subtitle" style="margin-bottom:2rem;">Join 12,000+ businesses already using Flow to convert more customers.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn btn-primary">Start Free Trial</a>
+        <a href="#" class="btn btn-outline">Book a Demo</a>
+      </div>
+      <p style="color:var(--text-tertiary);font-size:0.75rem;margin-top:1rem;">Free 14-day trial. No credit card required. Cancel anytime.</p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Flow by Weave. All rights reserved.</p>
+  </footer>
+
+  <script>
+    (function() {
+      var counters = document.querySelectorAll('.counter-value');
+      var counted = false;
+
+      function animateCounters() {
+        if (counted) return;
+        counted = true;
+        counters.forEach(function(el) {
+          var target = parseFloat(el.dataset.target);
+          var suffix = el.textContent.replace(/[\d.]/g, '') || '';
+          var current = 0;
+          var step = Math.ceil(target / 60);
+          var timer = setInterval(function() {
+            current += step;
+            if (current >= target) { current = target; clearInterval(timer); }
+            if (Number.isInteger(target)) {
+              el.textContent = Math.floor(current) + suffix;
+            } else {
+              el.textContent = current.toFixed(1) + suffix;
+            }
+          }, 25);
+        });
+      }
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) { animateCounters(); observer.disconnect(); }
+        });
+      }, { threshold: 0.3 });
+      var section = document.querySelector('.counter-grid');
+      if (section) observer.observe(section);
+    })();
+  </script>
+</body>
+</html>

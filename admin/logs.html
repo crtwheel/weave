@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Log — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand"><span class="logo-icon">W</span> Weave</div>
+      <nav class="sidebar-nav">
+        <a href="index.html">Dashboard</a>
+        <a href="users.html">Users</a>
+        <a href="templates.html">Templates</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="logs.html" class="active">Audit Log</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title">Audit Log</h1>
+        <button class="btn btn-outline btn-sm" onclick="handleSignOut()">Sign Out</button>
+      </header>
+      <div class="admin-content">
+        <div class="log-filters glass" style="padding:1rem;margin-bottom:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
+          <div class="form-group" style="margin:0;flex:1;min-width:150px;">
+            <label class="form-label">Date From</label>
+            <input class="form-input" type="date" id="filter-date-from" style="padding:0.5rem 0.75rem;font-size:0.8rem;">
+          </div>
+          <div class="form-group" style="margin:0;flex:1;min-width:150px;">
+            <label class="form-label">Date To</label>
+            <input class="form-input" type="date" id="filter-date-to" style="padding:0.5rem 0.75rem;font-size:0.8rem;">
+          </div>
+          <div class="form-group" style="margin:0;flex:1;min-width:150px;">
+            <label class="form-label">Action</label>
+            <input class="form-input" id="filter-action" placeholder="e.g. create, update" style="padding:0.5rem 0.75rem;font-size:0.8rem;">
+          </div>
+          <div class="form-group" style="margin:0;flex:1;min-width:150px;">
+            <label class="form-label">Admin</label>
+            <input class="form-input" id="filter-admin" placeholder="Admin ID or email" style="padding:0.5rem 0.75rem;font-size:0.8rem;">
+          </div>
+          <button class="btn btn-accent btn-sm" onclick="loadLogs()" style="flex-shrink:0;">Apply Filters</button>
+        </div>
+        <div class="glass" style="padding:0;overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Timestamp</th><th>Admin</th><th>Action</th><th>Target Type</th><th>Target ID</th><th>Details</th></tr></thead>
+            <tbody id="logs-body"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-secondary);">Loading...</td></tr></tbody>
+          </table>
+        </div>
+        <div id="log-pagination" style="display:flex;justify-content:center;align-items:center;gap:0.75rem;margin-top:1.5rem;">
+          <button class="btn btn-outline btn-sm" id="prev-page" onclick="changePage(-1)" disabled>Previous</button>
+          <span style="font-family:var(--font-display);font-size:0.8rem;color:var(--text-secondary);" id="page-info">Page 1</span>
+          <button class="btn btn-outline btn-sm" id="next-page" onclick="changePage(1)">Next</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    .log-filters .form-group { margin:0; }
+    .log-details-toggle { cursor:pointer; font-size:0.7rem; color:var(--accent); font-family:var(--font-display); }
+    .log-details-toggle:hover { text-decoration:underline; }
+  </style>
+
+  <script src="../js/supabase.js"></script>
+  <script src="../js/services/validation.js"></script>
+  <script src="../js/services/cache.js"></script>
+  <script src="../js/services/auth.js"></script>
+  <script src="../js/services/notifications.js"></script>
+  <script src="../js/services/storage.js"></script>
+  <script src="../js/services/templates.js"></script>
+  <script src="../js/services/purchases.js"></script>
+  <script src="../js/services/analytics.js"></script>
+  <script src="../js/services/admin.js"></script>
+  <script>
+    let allLogs = [];
+    let currentPage = 1;
+    const PER_PAGE = 20;
+
+    async function handleSignOut() {
+      if ('sbAuth' in window) await sbAuth.signOut();
+      else await sbSignOut();
+      window.location.href = '../dashboard.html';
+    }
+
+    function filterLogs(logs) {
+      const dateFrom = document.getElementById('filter-date-from').value;
+      const dateTo = document.getElementById('filter-date-to').value;
+      const actionFilter = document.getElementById('filter-action').value.toLowerCase();
+      const adminFilter = document.getElementById('filter-admin').value.toLowerCase();
+
+      return logs.filter(log => {
+        if (dateFrom && new Date(log.created_at) < new Date(dateFrom)) return false;
+        if (dateTo) {
+          const end = new Date(dateTo);
+          end.setDate(end.getDate() + 1);
+          if (new Date(log.created_at) > end) return false;
+        }
+        if (actionFilter && !log.action.toLowerCase().includes(actionFilter)) return false;
+        if (adminFilter) {
+          const adminStr = (log.actor_id || '').toLowerCase() + ' ' + (log.actor_email || '').toLowerCase();
+          if (!adminStr.includes(adminFilter)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderPage() {
+      const tbody = document.getElementById('logs-body');
+      const filtered = filterLogs(allLogs);
+      const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+      if (currentPage > totalPages) currentPage = totalPages;
+      const start = (currentPage - 1) * PER_PAGE;
+      const pageData = filtered.slice(start, start + PER_PAGE);
+
+      if (!pageData.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-secondary);">No audit logs yet.</td></tr>';
+      } else {
+        tbody.innerHTML = pageData.map(log => {
+          const time = new Date(log.created_at).toLocaleString();
+          const details = log.payload ? JSON.stringify(log.payload).slice(0, 80) + (JSON.stringify(log.payload).length > 80 ? '...' : '') : '—';
+          return '<tr>' +
+            '<td style="font-family:var(--font-display);font-size:0.7rem;white-space:nowrap;">' + time + '</td>' +
+            '<td class="cell-mono">' + (log.actor_id ? log.actor_id.slice(0, 8) + '...' : '—') + '</td>' +
+            '<td>' + log.action + '</td>' +
+            '<td>' + (log.entity_type || '—') + '</td>' +
+            '<td class="cell-mono">' + (log.entity_id || '—') + '</td>' +
+            '<td><span class="log-details-toggle" onclick="toggleDetails(this)">Show</span><span style="display:none;font-size:0.75rem;font-family:var(--font-display);">' + details + '</span></td>' +
+          '</tr>';
+        }).join('');
+      }
+
+      document.getElementById('page-info').textContent = 'Page ' + currentPage + ' of ' + totalPages;
+      document.getElementById('prev-page').disabled = currentPage <= 1;
+      document.getElementById('next-page').disabled = currentPage >= totalPages;
+    }
+
+    function toggleDetails(el) {
+      const span = el.nextElementSibling;
+      if (span.style.display === 'none') {
+        span.style.display = 'inline';
+        el.textContent = 'Hide';
+      } else {
+        span.style.display = 'none';
+        el.textContent = 'Show';
+      }
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      renderPage();
+    }
+
+    async function loadLogs() {
+      const tbody = document.getElementById('logs-body');
+      try {
+        allLogs = await sbAdmin.getAuditLogs();
+        currentPage = 1;
+        renderPage();
+      } catch (err) {
+        sbLog.error('Failed to load audit logs', err);
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--error);">Failed to load audit logs.</td></tr>';
+      }
+    }
+
+    async function init() {
+      const user = await sbGetUser();
+      if (!user) { window.location.href = '../dashboard.html'; return; }
+      if ('sbAuth' in window) await sbAuth.requireRole('admin').catch(() => {});
+      loadLogs();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

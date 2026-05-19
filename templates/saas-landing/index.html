@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaaS Landing — Weave Template</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Licensed to: {{LICENSED_TO}} | TX: {{TX_HASH}} */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* Hero */
+    .hero { padding: 6rem 0; text-align: center; }
+    .hero h1 { font-size: 3.5rem; font-weight: 800; line-height: 1.15; margin-bottom: 1.5rem; }
+    .hero h1 span { color: #f59e0b; }
+    .hero p { font-size: 1.15rem; color: #94a3b8; max-width: 600px; margin: 0 auto 2rem; line-height: 1.7; }
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: #f59e0b; color: #0f172a; }
+    .btn-primary:hover { background: #d97706; }
+    .btn-outline { border: 1px solid rgba(255,255,255,0.15); color: #f8fafc; }
+    .btn-outline:hover { border-color: #f59e0b; }
+
+    /* Features */
+    .features { padding: 5rem 0; border-top: 1px solid rgba(255,255,255,0.06); }
+    .features h2 { text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 3rem; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+    .feature-card { background: #1e293b; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 2rem; transition: transform 0.2s; }
+    .feature-card:hover { transform: translateY(-3px); }
+    .feature-icon { width: 48px; height: 48px; background: rgba(245,158,11,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
+    .feature-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .feature-card p { font-size: 0.9rem; color: #94a3b8; line-height: 1.6; }
+
+    /* Pricing */
+    .pricing { padding: 5rem 0; border-top: 1px solid rgba(255,255,255,0.06); }
+    .pricing h2 { text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 3rem; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .pricing-card { background: #1e293b; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 2.5rem 2rem; text-align: center; }
+    .pricing-card.featured { border-color: #f59e0b; position: relative; }
+    .pricing-card.featured::before { content: 'Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #f59e0b; color: #0f172a; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 1rem; border-radius: 999px; }
+    .pricing-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .pricing-card .price { font-size: 2.5rem; font-weight: 800; margin: 1rem 0; }
+    .pricing-card .price span { font-size: 1rem; font-weight: 400; color: #94a3b8; }
+    .pricing-card ul { list-style: none; margin: 1.5rem 0; text-align: left; }
+    .pricing-card ul li { padding: 0.5rem 0; font-size: 0.9rem; color: #94a3b8; }
+    .pricing-card ul li::before { content: '✓ '; color: #22c55e; }
+
+    /* CTA */
+    .cta { padding: 5rem 0; text-align: center; border-top: 1px solid rgba(255,255,255,0.06); }
+    .cta h2 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
+    .cta p { color: #94a3b8; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+    /* Footer */
+    footer { padding: 2rem 0; border-top: 1px solid rgba(255,255,255,0.06); text-align: center; color: #64748b; font-size: 0.85rem; }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 1rem; }
+    .footer-links a { color: #94a3b8; text-decoration: none; font-size: 0.85rem; }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="container">
+      <h1>Build Faster.<br><span>Launch Smarter.</span></h1>
+      <p>The all-in-one platform for modern teams. Ship products in days, not months, with our powerful suite of tools.</p>
+      <div class="hero-cta">
+        <a href="#" class="btn btn-primary">Start Free Trial</a>
+        <a href="#" class="btn btn-outline">View Demo</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="container">
+      <h2>Everything you need</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Lightning Fast</h3>
+          <p>Optimized infrastructure that scales with your traffic. 99.9% uptime guaranteed.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Secure by Default</h3>
+          <p>Enterprise-grade encryption and security practices built into every layer.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>Flexible Design</h3>
+          <p>Customizable workflows and integrations that adapt to your team's needs.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Real-time Analytics</h3>
+          <p>Actionable insights with live dashboards and customizable reports.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🤝</div>
+          <h3>Team Collaboration</h3>
+          <p>Work together seamlessly with shared workspaces and version control.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3>Global Reach</h3>
+          <p>CDN-powered delivery with edge caching in 50+ locations worldwide.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing">
+    <div class="container">
+      <h2>Simple, transparent pricing</h2>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>Basic</h3>
+          <div class="price">$19<span>/mo</span></div>
+          <ul>
+            <li>Up to 5 users</li>
+            <li>10GB storage</li>
+            <li>Basic analytics</li>
+            <li>Email support</li>
+          </ul>
+          <a href="#" class="btn btn-outline" style="width:100%;">Get Started</a>
+        </div>
+        <div class="pricing-card featured">
+          <h3>Pro</h3>
+          <div class="price">$49<span>/mo</span></div>
+          <ul>
+            <li>Up to 25 users</li>
+            <li>100GB storage</li>
+            <li>Advanced analytics</li>
+            <li>Priority support</li>
+            <li>API access</li>
+          </ul>
+          <a href="#" class="btn btn-primary" style="width:100%;">Get Started</a>
+        </div>
+        <div class="pricing-card">
+          <h3>Enterprise</h3>
+          <div class="price">$149<span>/mo</span></div>
+          <ul>
+            <li>Unlimited users</li>
+            <li>1TB storage</li>
+            <li>Custom analytics</li>
+            <li>24/7 phone support</li>
+            <li>API access</li>
+            <li>Dedicated infra</li>
+          </ul>
+          <a href="#" class="btn btn-outline" style="width:100%;">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="container">
+      <h2>Ready to get started?</h2>
+      <p>Join thousands of teams already building with Weave templates.</p>
+      <a href="#" class="btn btn-primary">Start Free Trial</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-links">
+      <a href="#">Product</a>
+      <a href="#">Features</a>
+      <a href="#">Pricing</a>
+      <a href="#">Docs</a>
+      <a href="#">Contact</a>
+    </div>
+    &copy; 2026 YourCompany. All rights reserved.
+  </footer>
+</body>
+</html>

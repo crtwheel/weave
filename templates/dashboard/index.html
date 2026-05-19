@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Dashboard — Acme Corp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    .sidebar-link { transition: all 0.2s ease; border-left: 3px solid transparent; }
+    .sidebar-link:hover, .sidebar-link.active { background: #f0f4ff; border-left-color: #6366f1; color: #6366f1; }
+    .stat-card { transition: all 0.3s ease; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.1); }
+    .bar { transition: height 0.8s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.5s ease forwards; opacity: 0; }
+    .fade-in:nth-child(1) { animation-delay: 0.1s; }
+    .fade-in:nth-child(2) { animation-delay: 0.2s; }
+    .fade-in:nth-child(3) { animation-delay: 0.3s; }
+    .fade-in:nth-child(4) { animation-delay: 0.4s; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased">
+
+  <div class="flex min-h-screen">
+
+    <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col shrink-0">
+      <div class="p-6 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-indigo-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">A</div>
+          <div>
+            <h2 class="font-bold text-sm">Acme Corp</h2>
+            <p class="text-xs text-gray-400">Enterprise Plan</p>
+          </div>
+        </div>
+      </div>
+      <nav class="flex-1 p-4 space-y-1">
+        <a href="#" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-r-lg text-sm font-medium"><i class="fas fa-chart-pie w-5 text-center"></i> Dashboard</a>
+        <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-r-lg text-sm text-gray-500"><i class="fas fa-users w-5 text-center"></i> Users</a>
+        <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-r-lg text-sm text-gray-500"><i class="fas fa-shopping-cart w-5 text-center"></i> Orders</a>
+        <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-r-lg text-sm text-gray-500"><i class="fas fa-envelope w-5 text-center"></i> Messages</a>
+        <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-r-lg text-sm text-gray-500"><i class="fas fa-cog w-5 text-center"></i> Settings</a>
+      </nav>
+      <div class="p-4 border-t border-gray-100">
+        <div class="flex items-center gap-3 px-4 py-3">
+          <div class="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium">JD</div>
+          <div>
+            <p class="text-sm font-medium">Jane Doe</p>
+            <p class="text-xs text-gray-400">jane@acme.com</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 min-w-0">
+
+      <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-bold">Dashboard</h1>
+          <p class="text-sm text-gray-400">Welcome back, Jane! Here's what's happening.</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <button class="relative text-gray-400 hover:text-gray-600"><i class="fas fa-bell text-lg"></i><span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center">3</span></button>
+          <button class="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-600 transition"><i class="fas fa-download mr-2"></i>Export</button>
+        </div>
+      </header>
+
+      <div class="p-6">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="stat-card bg-white rounded-xl p-6 shadow-sm border border-gray-100 fade-in">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-gray-400 text-sm font-medium">Total Revenue</span>
+              <span class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600"><i class="fas fa-dollar-sign"></i></span>
+            </div>
+            <p class="text-3xl font-bold">$48,295</p>
+            <p class="text-sm text-green-500 mt-1"><i class="fas fa-arrow-up mr-1"></i>12.5% vs last month</p>
+          </div>
+          <div class="stat-card bg-white rounded-xl p-6 shadow-sm border border-gray-100 fade-in">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-gray-400 text-sm font-medium">Active Users</span>
+              <span class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600"><i class="fas fa-users"></i></span>
+            </div>
+            <p class="text-3xl font-bold">2,847</p>
+            <p class="text-sm text-green-500 mt-1"><i class="fas fa-arrow-up mr-1"></i>8.2% vs last month</p>
+          </div>
+          <div class="stat-card bg-white rounded-xl p-6 shadow-sm border border-gray-100 fade-in">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-gray-400 text-sm font-medium">Orders</span>
+              <span class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600"><i class="fas fa-shopping-cart"></i></span>
+            </div>
+            <p class="text-3xl font-bold">643</p>
+            <p class="text-sm text-red-500 mt-1"><i class="fas fa-arrow-down mr-1"></i>3.1% vs last month</p>
+          </div>
+          <div class="stat-card bg-white rounded-xl p-6 shadow-sm border border-gray-100 fade-in">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-gray-400 text-sm font-medium">Conversion Rate</span>
+              <span class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><i class="fas fa-percent"></i></span>
+            </div>
+            <p class="text-3xl font-bold">3.24%</p>
+            <p class="text-sm text-green-500 mt-1"><i class="fas fa-arrow-up mr-1"></i>1.8% vs last month</p>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-6 mb-8">
+          <div class="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="font-bold text-lg">Weekly Revenue</h2>
+              <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-500">
+                <option>Last 7 days</option>
+                <option>Last 30 days</option>
+                <option>Last 90 days</option>
+              </select>
+            </div>
+            <div class="flex items-end gap-3 h-48">
+              <div class="flex-1 flex flex-col items-center gap-2"><div class="bar w-full bg-indigo-200 rounded-t-md" style="height:30%"></div><span class="text-xs text-gray-400">Mon</span></div>
+              <div class="flex-1 flex flex-col items-center gap-2"><div class="bar w-full bg-indigo-300 rounded-t-md" style="height:55%"></div><span class="text-xs text-gray-400">Tue</span></div>
+              <div class="flex-1 flex flex-col items-center gap-2"><div class="bar w-full bg-indigo-400 rounded-t-md" style="height:40%"></div><span class="text-xs text-gray-400">Wed</span></div>
+              <div class="flex-1 flex flex-col items-center gap-2"><div class="bar w-full bg-indigo-500 rounded-t-md" style="height:75%"></div><span class="text-xs text-gray-400">Thu</span></div>
+              <div class="flex-1 flex flex-col items-center gap-2"><div class="bar w-full bg-indigo-600 rounded-t-md" style="height:60%"></div><span class="text-xs text-gray-400">Fri</span></div>
+              <div class="flex-1 flex flex-col items-center gap-2"><div class="bar w-full bg-indigo-400 rounded-t-md" style="height:90%"></div><span class="text-xs text-gray-400">Sat</span></div>
+              <div class="flex-1 flex flex-col items-center gap-2"><div class="bar w-full bg-indigo-300 rounded-t-md" style="height:45%"></div><span class="text-xs text-gray-400">Sun</span></div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="font-bold text-lg mb-4">Recent Activity</h2>
+            <div class="space-y-4">
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xs"><i class="fas fa-user-plus"></i></div>
+                <div><p class="text-sm font-medium">New user registered</p><p class="text-xs text-gray-400">2 minutes ago</p></div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xs"><i class="fas fa-shopping-cart"></i></div>
+                <div><p class="text-sm font-medium">Order #3421 completed</p><p class="text-xs text-gray-400">15 minutes ago</p></div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-xs"><i class="fas fa-exclamation-triangle"></i></div>
+                <div><p class="text-sm font-medium">Server warning - high CPU</p><p class="text-xs text-gray-400">1 hour ago</p></div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs"><i class="fas fa-download"></i></div>
+                <div><p class="text-sm font-medium">Report exported</p><p class="text-xs text-gray-400">3 hours ago</p></div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-600 text-xs"><i class="fas fa-times-circle"></i></div>
+                <div><p class="text-sm font-medium">Failed payment attempt</p><p class="text-xs text-gray-400">5 hours ago</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-6 mb-8">
+          <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h2 class="font-bold text-lg">Recent Orders</h2>
+              <a href="#" class="text-sm text-indigo-500 hover:underline">View All</a>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="text-gray-400 border-b border-gray-100">
+                  <tr><th class="text-left px-6 py-4 font-medium">Customer</th><th class="text-left px-6 py-4 font-medium">Product</th><th class="text-left px-6 py-4 font-medium">Status</th><th class="text-right px-6 py-4 font-medium">Amount</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-gray-50 hover:bg-gray-50"><td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-8 h-8 bg-gray-200 rounded-full"></div><span class="font-medium">Sarah Johnson</span></div></td><td class="px-6 py-4 text-gray-500">Pro Plan Monthly</td><td class="px-6 py-4"><span class="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium">Completed</span></td><td class="px-6 py-4 text-right font-medium">$49.00</td></tr>
+                  <tr class="border-b border-gray-50 hover:bg-gray-50"><td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-8 h-8 bg-gray-200 rounded-full"></div><span class="font-medium">Mike Torres</span></div></td><td class="px-6 py-4 text-gray-500">Team License</td><td class="px-6 py-4"><span class="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full font-medium">Pending</span></td><td class="px-6 py-4 text-right font-medium">$299.00</td></tr>
+                  <tr class="border-b border-gray-50 hover:bg-gray-50"><td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-8 h-8 bg-gray-200 rounded-full"></div><span class="font-medium">Emily Chen</span></div></td><td class="px-6 py-4 text-gray-500">Enterprise Add-on</td><td class="px-6 py-4"><span class="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium">Completed</span></td><td class="px-6 py-4 text-right font-medium">$899.00</td></tr>
+                  <tr class="hover:bg-gray-50"><td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-8 h-8 bg-gray-200 rounded-full"></div><span class="font-medium">David Kim</span></div></td><td class="px-6 py-4 text-gray-500">Basic Plan</td><td class="px-6 py-4"><span class="bg-red-100 text-red-700 text-xs px-3 py-1 rounded-full font-medium">Failed</span></td><td class="px-6 py-4 text-right font-medium">$19.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 class="font-bold text-lg mb-4">Top Users</h2>
+            <div class="space-y-4">
+              <div class="flex items-center gap-3"><div class="w-9 h-9 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-sm font-bold">SJ</div><div class="flex-1"><p class="text-sm font-medium">Sarah Johnson</p><p class="text-xs text-gray-400">$2,450 spent</p></div><span class="text-xs font-medium text-green-500">+12%</span></div>
+              <div class="flex items-center gap-3"><div class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm font-bold">MT</div><div class="flex-1"><p class="text-sm font-medium">Mike Torres</p><p class="text-xs text-gray-400">$1,890 spent</p></div><span class="text-xs font-medium text-green-500">+8%</span></div>
+              <div class="flex items-center gap-3"><div class="w-9 h-9 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-sm font-bold">EC</div><div class="flex-1"><p class="text-sm font-medium">Emily Chen</p><p class="text-xs text-gray-400">$1,670 spent</p></div><span class="text-xs font-medium text-red-500">-2%</span></div>
+              <div class="flex items-center gap-3"><div class="w-9 h-9 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 text-sm font-bold">DK</div><div class="flex-1"><p class="text-sm font-medium">David Kim</p><p class="text-xs text-gray-400">$1,230 spent</p></div><span class="text-xs font-medium text-green-500">+5%</span></div>
+              <div class="flex items-center gap-3"><div class="w-9 h-9 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 text-sm font-bold">LW</div><div class="flex-1"><p class="text-sm font-medium">Lisa Wang</p><p class="text-xs text-gray-400">$980 spent</p></div><span class="text-xs font-medium text-green-500">+15%</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand"><span class="logo-icon">W</span> Weave</div>
+      <nav class="sidebar-nav">
+        <a href="index.html">Dashboard</a>
+        <a href="users.html" class="active">Users</a>
+        <a href="templates.html">Templates</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="logs.html">Audit Log</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title">User Management</h1>
+        <button class="btn btn-outline btn-sm" onclick="handleSignOut()">Sign Out</button>
+      </header>
+      <div class="admin-content">
+        <div class="glass" style="padding:0;overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Avatar</th><th>Email</th><th>Role</th><th>Status</th><th>Purchases</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="users-body"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary);">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/supabase.js"></script>
+  <script src="../js/services/validation.js"></script>
+  <script src="../js/services/cache.js"></script>
+  <script src="../js/services/auth.js"></script>
+  <script src="../js/services/notifications.js"></script>
+  <script src="../js/services/storage.js"></script>
+  <script src="../js/services/templates.js"></script>
+  <script src="../js/services/purchases.js"></script>
+  <script src="../js/services/analytics.js"></script>
+  <script src="../js/services/admin.js"></script>
+  <script>
+    async function handleSignOut() {
+      if ('sbAuth' in window) await sbAuth.signOut();
+      else await sbSignOut();
+      window.location.href = '../dashboard.html';
+    }
+
+    async function loadUsers() {
+      const tbody = document.getElementById('users-body');
+      try {
+        const users = await sbAdmin.listUsers();
+        if (!users || !users.length) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary);">No users found.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = users.map(u => {
+          const avatar = u.avatar_url ? '<img src="' + u.avatar_url + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">' : '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#f97316);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;font-family:var(--font-display);">' + (u.email ? u.email.charAt(0).toUpperCase() : '?') + '</div>';
+          const roleBadge = 'badge badge-' + (u.role || 'user');
+          const statusBadge = u.banned_at ? 'badge badge-banned' : 'badge badge-active';
+          const statusText = u.banned_at ? 'Banned' : 'Active';
+          const joined = u.created_at ? new Date(u.created_at).toLocaleDateString() : '—';
+          return '<tr>' +
+            '<td>' + avatar + '</td>' +
+            '<td>' + (u.email || '—') + '</td>' +
+            '<td><span class="' + roleBadge + '">' + (u.role || 'user') + '</span></td>' +
+            '<td><span class="' + statusBadge + '">' + statusText + '</span></td>' +
+            '<td>' + (u.purchase_count ?? '—') + '</td>' +
+            '<td style="font-family:var(--font-display);font-size:0.75rem;">' + joined + '</td>' +
+            '<td class="actions">' +
+              '<select class="form-input" style="width:auto;display:inline-block;padding:0.3rem 0.6rem;font-size:0.8rem;margin-right:0.4rem;" data-id="' + u.id + '">' +
+                '<option value="user"' + (u.role === 'user' ? ' selected' : '') + '>User</option>' +
+                '<option value="admin"' + (u.role === 'admin' ? ' selected' : '') + '>Admin</option>' +
+              '</select>' +
+              '<button class="btn btn-accent btn-sm" onclick="updateRole(this)">Update</button>' +
+              (u.banned_at
+                ? '<button class="btn btn-outline btn-sm" onclick="unbanUser(this)" style="color:var(--success);">Unban</button>'
+                : '<button class="btn btn-outline btn-sm" onclick="banUser(this)" style="color:var(--error);">Ban</button>') +
+            '</td>' +
+          '</tr>';
+        }).join('');
+      } catch (err) {
+        sbLog.error('Failed to load users', err);
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--error);">Error: ' + err.message + '</td></tr>';
+      }
+    }
+
+    async function updateRole(btn) {
+      const row = btn.closest('tr');
+      const select = row.querySelector('select');
+      const userId = select.dataset.id;
+      const role = select.value;
+      btn.disabled = true;
+      btn.textContent = '...';
+      try {
+        await sbAdmin.updateUserRole(userId, role);
+        if ('sbNotify' in window) sbNotify.success('Role updated to ' + role);
+        else alert('Role updated to ' + role);
+      } catch (err) {
+        if ('sbNotify' in window) sbNotify.error('Failed: ' + err.message);
+        else alert('Failed: ' + err.message);
+      }
+      btn.disabled = false;
+      btn.textContent = 'Update';
+    }
+
+    async function banUser(btn) {
+      const row = btn.closest('tr');
+      const userId = row.querySelector('select').dataset.id;
+      if (!confirm('Are you sure you want to ban this user?')) return;
+      btn.disabled = true;
+      btn.textContent = '...';
+      try {
+        await sbAdmin.banUser(userId);
+        if ('sbNotify' in window) sbNotify.success('User banned');
+        loadUsers();
+      } catch (err) {
+        if ('sbNotify' in window) sbNotify.error('Failed: ' + err.message);
+        else alert('Failed: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Ban';
+      }
+    }
+
+    async function unbanUser(btn) {
+      const row = btn.closest('tr');
+      const userId = row.querySelector('select').dataset.id;
+      btn.disabled = true;
+      btn.textContent = '...';
+      try {
+        await sbAdmin.unbanUser(userId);
+        if ('sbNotify' in window) sbNotify.success('User unbanned');
+        loadUsers();
+      } catch (err) {
+        if ('sbNotify' in window) sbNotify.error('Failed: ' + err.message);
+        else alert('Failed: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Unban';
+      }
+    }
+
+    async function init() {
+      const user = await sbGetUser();
+      if (!user) { window.location.href = '../dashboard.html'; return; }
+      if ('sbAuth' in window) await sbAuth.requireRole('admin').catch(() => {});
+      loadUsers();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

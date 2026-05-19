@@ -11,12 +11,10 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="index.html" class="logo">
-      <span class="logo-icon">W</span>
-      Weave
-    </a>
+    <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
     <nav class="nav-links">
-      <a href="#products">Products</a>
+      <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
       <a href="faq.html">FAQ</a>
       <a href="dashboard.html">Dashboard</a>
     </nav>
@@ -46,6 +44,19 @@
         <h2 class="section-title">Available Templates</h2>
         <p class="section-subtitle">Hand-crafted, production-ready templates. Own them forever.</p>
       </div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+        <div class="filter-bar" id="category-filters">
+          <span class="filter-chip active" data-cat="all">All</span>
+          <span class="filter-chip" data-cat="saas">SaaS</span>
+          <span class="filter-chip" data-cat="portfolio">Portfolio</span>
+          <span class="filter-chip" data-cat="dashboard">Dashboard</span>
+          <span class="filter-chip" data-cat="blog">Blog</span>
+          <span class="filter-chip" data-cat="ecommerce">E-commerce</span>
+          <span class="filter-chip" data-cat="startup">Startup</span>
+          <span class="filter-chip" data-cat="marketing">Marketing</span>
+        </div>
+        <input class="search-bar" id="search-input" placeholder="Search templates..." style="max-width:280px;">
+      </div>
       <div id="product-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
         <div class="skeleton" style="height:320px;"></div>
         <div class="skeleton" style="height:320px;"></div>
@@ -55,40 +66,112 @@
     </div>
   </section>
 
+  <section class="section" style="background:var(--bg-alt);">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Why Weave</h2>
+        <p class="section-subtitle">Built for founders who value privacy, ownership, and speed.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;">
+        <div class="glass glass-hover" style="padding:2rem;text-align:center;">
+          <div style="font-size:2rem;margin-bottom:0.75rem;">&#x26A1;</div>
+          <h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Crypto Payments</h3>
+          <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.6;">No bank account needed. Pay with ETH or USDC directly from your wallet. No KYC, no cards, no hassle.</p>
+        </div>
+        <div class="glass glass-hover" style="padding:2rem;text-align:center;">
+          <div style="font-size:2rem;margin-bottom:0.75rem;">&#x1F512;</div>
+          <h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Lifetime Access</h3>
+          <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.6;">Own your templates forever. No subscriptions, no recurring fees. Download anytime from your Dashboard.</p>
+        </div>
+        <div class="glass glass-hover" style="padding:2rem;text-align:center;">
+          <div style="font-size:2rem;margin-bottom:0.75rem;">&#x1F680;</div>
+          <h3 class="font-display" style="font-size:1rem;margin-bottom:0.5rem;">Fast Delivery</h3>
+          <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.6;">Payments verified in ~5 minutes. Once confirmed, your template is ready to download instantly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <footer class="site-footer">
-    <p>Pay with ETH to: <span style="font-family:var(--font-display);color:var(--text);">0xbe9Db9c86B79617231a4861fb54ef278447D43fb</span></p>
-    <p style="margin-top:0.5rem;">&copy; 2026 Weave</p>
+    <p>Pay with ETH to: <span class="font-mono" style="color:var(--text)">0xbe9Db9c86B79617231a4861fb54ef278447D43fb</span></p>
+    <p style="margin-top:0.5rem">&copy; 2026 Weave</p>
   </footer>
 
   <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/storage.js"></script>
+  <script src="js/services/templates.js"></script>
+  <script src="js/services/purchases.js"></script>
   <script>
+    let allTemplates = [];
+    let activeCategory = 'all';
+    let searchQuery = '';
+
+    function renderGrid(templates) {
+      const grid = document.getElementById('product-grid');
+      if (!templates.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">&#x1F50D;</div><div class="empty-state-text">No templates match your criteria. Try a different category or search term.</div></div>';
+        return;
+      }
+      grid.innerHTML = templates.map(t => `
+        <a href="template.html?slug=${t.slug}" class="card">
+          <div class="card-preview">${t.preview_url ? `<img src="${t.preview_url}" alt="${t.name}">` : 'PREVIEW'}</div>
+          <div class="card-body">
+            <div class="card-title">${t.name}</div>
+            <div class="card-desc">${(t.description || '').substring(0, 100)}</div>
+            <div class="card-price">$${t.price_usd} <span>~${t.price_eth} ETH</span></div>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    function filterAndRender() {
+      let filtered = [...allTemplates];
+      if (activeCategory !== 'all') {
+        filtered = filtered.filter(t => t.category_slug === activeCategory);
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        filtered = filtered.filter(t =>
+          (t.name || '').toLowerCase().includes(q) ||
+          (t.description || '').toLowerCase().includes(q)
+        );
+      }
+      renderGrid(filtered);
+    }
+
     async function loadProducts() {
       const grid = document.getElementById('product-grid');
-      sbLog.info('Loading products...');
       try {
-        const data = await sbSelect('templates', { order: 'created_at' });
-        if (!data?.length) {
-          grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:3rem 0;">No templates available yet.</p>';
-          return;
-        }
-        grid.innerHTML = data.map(t => `
-          <a href="product.html?slug=${t.slug}" class="card">
-            <div class="card-preview">${t.preview_url ? `<img src="${t.preview_url}" alt="${t.name}">` : 'PREVIEW'}</div>
-            <div class="card-body">
-              <div class="card-title">${t.name}</div>
-              <div class="card-desc">${t.description || ''}</div>
-              <div class="card-price">$${t.price_usd} <span>~${t.price_eth} ETH</span></div>
-            </div>
-          </a>
-        `).join('');
-        sbLog.ok(`Loaded ${data.length} products`);
+        allTemplates = await sbTemplates.popular();
+        filterAndRender();
+        sbLog.ok(`Loaded ${allTemplates.length} templates`);
       } catch (err) {
-        sbLog.error('Products load failed', err);
-        grid.innerHTML = '<div style="text-align:center;padding:3rem 0;color:var(--text-secondary);">Failed to load products. <button onclick="location.reload()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:0.5rem 1rem;cursor:pointer;margin-top:0.5rem;color:var(--text);">Retry</button></div>';
+        sbLog.error('Failed to load templates', err);
+        grid.innerHTML = '<div style="text-align:center;padding:3rem 0;color:var(--text-secondary);grid-column:1/-1;">Failed to load templates. <button onclick="location.reload()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:0.5rem 1rem;cursor:pointer;margin-top:0.5rem;color:var(--text);">Retry</button></div>';
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadProducts);
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProducts();
+
+      document.getElementById('category-filters').addEventListener('click', function(e) {
+        const chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeCategory = chip.dataset.cat;
+        filterAndRender();
+      });
+
+      document.getElementById('search-input').addEventListener('input', function(e) {
+        searchQuery = e.target.value;
+        filterAndRender();
+      });
+    });
   </script>
 </body>
 </html>

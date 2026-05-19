@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/storage.js"></script>
+  <script src="js/services/templates.js"></script>
+  <script src="js/services/purchases.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
+    <nav class="nav-links">
+      <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
+      <a href="faq.html">FAQ</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title font-display">Account Settings</h1>
+      <p class="page-subtitle">Manage your profile and account</p>
+    </div>
+
+    <div style="max-width:640px;">
+      <div class="glass" style="padding:2rem;margin-bottom:1.5rem;">
+        <h2 class="font-display" style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Profile</h2>
+        <form onsubmit="saveProfile(event)">
+          <div class="form-group">
+            <label class="form-label" for="display-name">Display Name</label>
+            <input class="form-input" id="display-name" type="text" placeholder="Your display name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="discord-username">Discord Username</label>
+            <input class="form-input" id="discord-username" type="text" placeholder="username#0000">
+          </div>
+          <button class="btn btn-accent" type="submit">Save Changes</button>
+        </form>
+      </div>
+
+      <div class="glass" style="padding:2rem;margin-bottom:1.5rem;">
+        <h2 class="font-display" style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Account</h2>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="account-email" type="email" readonly style="opacity:0.7;cursor:not-allowed;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Member Since</label>
+          <input class="form-input" id="member-since" type="text" readonly style="opacity:0.7;cursor:not-allowed;">
+        </div>
+      </div>
+
+      <div class="glass" style="padding:2rem;border:1px solid rgba(239,68,68,0.15);">
+        <h2 class="font-display" style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;color:var(--error);">Danger Zone</h2>
+        <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.25rem;">Sign out of your account on this device.</p>
+        <button class="btn btn-outline" style="border-color:var(--error);color:var(--error);" onclick="handleSignOut()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function init() {
+      const user = await sbGetUser();
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      document.getElementById('account-email').value = user.email || '';
+      document.getElementById('member-since').value = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A';
+      if (user.display_name) document.getElementById('display-name').value = user.display_name;
+      if (user.discord_username) document.getElementById('discord-username').value = user.discord_username;
+    }
+
+    async function saveProfile(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const displayName = document.getElementById('display-name').value.trim();
+      const discordUsername = document.getElementById('discord-username').value.trim();
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      try {
+        await sbAuth.updateProfile({ display_name: displayName, discord_username: discordUsername });
+        sbLog.ok('Profile updated');
+        sbNotify.success('Profile saved successfully');
+      } catch (err) {
+        sbLog.error('Failed to update profile', err);
+        sbNotify.error('Failed to save profile: ' + err.message);
+      }
+      btn.disabled = false;
+      btn.textContent = 'Save Changes';
+    }
+
+    async function handleSignOut() {
+      await sbAuth.signOut();
+      sbLog.info('Signed out');
+      window.location.href = 'dashboard.html';
+    }
+
+    init();
+  </script>
+</body>
+</html>

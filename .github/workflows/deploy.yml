@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Inject config
         run: |
+          mkdir -p js/services
           echo "const WEAVE_CONFIG = {
             SUPABASE_URL: '${{ secrets.SUPABASE_URL }}',
             SUPABASE_ANON_KEY: '${{ secrets.SUPABASE_ANON_KEY }}',

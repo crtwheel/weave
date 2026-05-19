@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collections — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/storage.js"></script>
+  <script src="js/services/templates.js"></script>
+  <script src="js/services/purchases.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
+    <nav class="nav-links">
+      <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
+      <a href="faq.html">FAQ</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title font-display">Your Collections</h1>
+      <p class="page-subtitle">Organize your favorite templates</p>
+      <button class="btn btn-accent" onclick="createCollection()" style="margin-top:1rem;">+ Create Collection</button>
+    </div>
+
+    <div id="collections-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.25rem;"></div>
+  </div>
+
+  <div id="collection-modal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this)closeCollectionModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <span id="collection-modal-title">Collection</span>
+        <button onclick="closeCollectionModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--text-secondary);">&times;</button>
+      </div>
+      <div class="modal-body" id="collection-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'weave-collections';
+
+    function getCollections() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch { return []; }
+    }
+
+    function saveCollections(collections) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(collections));
+    }
+
+    async function init() {
+      const user = await sbGetUser();
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      renderCollections();
+    }
+
+    function renderCollections() {
+      const grid = document.getElementById('collections-grid');
+      const collections = getCollections();
+      if (!collections.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon">&#128193;</div><div class="empty-state-text">Create your first collection to organize your favorite templates.</div></div>';
+        return;
+      }
+      grid.innerHTML = collections.map(c => `
+        <div class="collection-card" onclick="openCollection('${c.id}')">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+            <h3 class="font-display" style="font-size:1rem;font-weight:700;">${c.name}</h3>
+            <span class="collection-count">${c.templates.length}</span>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-tertiary);margin-top:0.5rem;">${new Date(c.createdAt).toLocaleDateString()}</p>
+          <button class="btn btn-outline btn-sm" style="margin-top:0.75rem;" onclick="event.stopPropagation();deleteCollection('${c.id}')">Delete</button>
+        </div>
+      `).join('');
+    }
+
+    function createCollection() {
+      const name = prompt('Collection name:');
+      if (!name || !name.trim()) return;
+      const collections = getCollections();
+      collections.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2),
+        name: name.trim(),
+        templates: [],
+        createdAt: new Date().toISOString()
+      });
+      saveCollections(collections);
+      renderCollections();
+      sbNotify.success('Collection created');
+    }
+
+    function deleteCollection(id) {
+      if (!confirm('Delete this collection?')) return;
+      const collections = getCollections().filter(c => c.id !== id);
+      saveCollections(collections);
+      renderCollections();
+      sbNotify.info('Collection deleted');
+    }
+
+    function openCollection(id) {
+      const collections = getCollections();
+      const c = collections.find(col => col.id === id);
+      if (!c) return;
+      document.getElementById('collection-modal-title').textContent = c.name;
+      const body = document.getElementById('collection-modal-body');
+      if (!c.templates.length) {
+        body.innerHTML = '<p style="color:var(--text-secondary);">No templates in this collection yet.</p>';
+      } else {
+        body.innerHTML = '<div style="display:grid;gap:0.75rem;">' + c.templates.map(t => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.8rem;background:var(--bg-alt);border-radius:var(--radius-sm);">
+            <span style="font-size:0.85rem;">${t.name || 'Template'}</span>
+            <button class="btn btn-outline btn-sm" onclick="removeFromCollection('${c.id}', '${t.id}')">Remove</button>
+          </div>
+        `).join('') + '</div>';
+      }
+      document.getElementById('collection-modal').style.display = 'flex';
+    }
+
+    function removeFromCollection(collectionId, templateId) {
+      let collections = getCollections();
+      const c = collections.find(col => col.id === collectionId);
+      if (!c) return;
+      c.templates = c.templates.filter(t => t.id !== templateId);
+      saveCollections(collections);
+      openCollection(collectionId);
+      sbNotify.info('Template removed from collection');
+    }
+
+    function closeCollectionModal() {
+      document.getElementById('collection-modal').style.display = 'none';
+    }
+
+    init();
+  </script>
+</body>
+</html>

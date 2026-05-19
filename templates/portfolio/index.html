@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alex Rivera — Full-Stack Developer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    .typing-cursor::after { content: '|'; animation: blink 1s step-end infinite; color: #a78bfa; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .typing-text { overflow: hidden; white-space: nowrap; border-right: 2px solid #a78bfa; animation: typing 3s steps(30) forwards, blink 1s step-end infinite; width: 0; display: inline-block; }
+    @keyframes typing { to { width: 18ch; } }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+    .gradient-text { background: linear-gradient(135deg, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .skill-tag { transition: all 0.3s ease; }
+    .skill-tag:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(167,139,250,0.3); }
+    .project-card { transition: all 0.4s ease; }
+    .project-card:hover { transform: translateY(-8px); }
+    .timeline-dot::before { content: ''; position: absolute; left: -2.5rem; top: 0.5rem; width: 14px; height: 14px; border-radius: 50%; background: #a78bfa; border: 3px solid #1e1b2e; }
+    .timeline-line { position: relative; }
+    .timeline-line::after { content: ''; position: absolute; left: -1.95rem; top: 1.5rem; bottom: -1rem; width: 2px; background: linear-gradient(to bottom, #a78bfa, #f472b6); }
+  </style>
+</head>
+<body class="bg-[#0f0d1a] text-gray-200 antialiased">
+
+  <nav class="fixed top-0 w-full z-50 glass">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <span class="text-xl font-bold gradient-text">AR.</span>
+      <div class="hidden md:flex gap-8 text-sm font-medium text-gray-400">
+        <a href="#skills" class="hover:text-white transition">Skills</a>
+        <a href="#projects" class="hover:text-white transition">Projects</a>
+        <a href="#experience" class="hover:text-white transition">Experience</a>
+        <a href="#contact" class="hover:text-white transition">Contact</a>
+      </div>
+      <a href="#contact" class="bg-gradient-to-r from-violet-500 to-pink-500 px-5 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition">Hire Me</a>
+    </div>
+  </nav>
+
+  <section class="min-h-screen flex items-center justify-center px-6 pt-20">
+    <div class="text-center max-w-3xl">
+      <p class="text-violet-400 font-medium text-sm tracking-widest uppercase mb-4">Full-Stack Developer</p>
+      <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+        Hi, I'm <span class="gradient-text">Alex Rivera</span>
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-400 mb-2 typing-cursor">
+        <span class="typing-text">I build digital experiences</span>
+      </p>
+      <p class="text-gray-500 max-w-xl mx-auto mb-10 text-lg">
+        Crafting performant web applications with modern frameworks, clean architecture, and pixel-perfect design.
+      </p>
+      <div class="flex gap-4 justify-center">
+        <a href="#projects" class="bg-gradient-to-r from-violet-500 to-pink-500 px-8 py-3 rounded-full font-semibold hover:opacity-90 transition">View My Work</a>
+        <a href="#contact" class="border border-gray-600 px-8 py-3 rounded-full font-semibold hover:border-violet-400 transition">Get in Touch</a>
+      </div>
+      <div class="flex gap-6 justify-center mt-12 text-gray-500 text-xl">
+        <a href="#" class="hover:text-violet-400 transition"><i class="fab fa-github"></i></a>
+        <a href="#" class="hover:text-violet-400 transition"><i class="fab fa-linkedin"></i></a>
+        <a href="#" class="hover:text-violet-400 transition"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="hover:text-violet-400 transition"><i class="fab fa-dribbble"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" class="py-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-violet-400 text-sm tracking-widest uppercase mb-2">What I Do</p>
+      <h2 class="text-4xl font-bold mb-12">Skills &amp; Technologies</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="glass rounded-2xl p-6 text-center skill-tag"><i class="fab fa-react text-4xl text-cyan-400 mb-3"></i><h3 class="font-semibold">React</h3><p class="text-gray-500 text-sm">Next.js, Remix</p></div>
+        <div class="glass rounded-2xl p-6 text-center skill-tag"><i class="fab fa-vuejs text-4xl text-emerald-400 mb-3"></i><h3 class="font-semibold">Vue</h3><p class="text-gray-500 text-sm">Nuxt, Pinia</p></div>
+        <div class="glass rounded-2xl p-6 text-center skill-tag"><i class="fab fa-node text-4xl text-green-500 mb-3"></i><h3 class="font-semibold">Node.js</h3><p class="text-gray-500 text-sm">Express, NestJS</p></div>
+        <div class="glass rounded-2xl p-6 text-center skill-tag"><i class="fas fa-database text-4xl text-yellow-400 mb-3"></i><h3 class="font-semibold">Databases</h3><p class="text-gray-500 text-sm">PostgreSQL, MongoDB</p></div>
+        <div class="glass rounded-2xl p-6 text-center skill-tag"><i class="fab fa-python text-4xl text-blue-400 mb-3"></i><h3 class="font-semibold">Python</h3><p class="text-gray-500 text-sm">FastAPI, Django</p></div>
+        <div class="glass rounded-2xl p-6 text-center skill-tag"><i class="fab fa-aws text-4xl text-orange-400 mb-3"></i><h3 class="font-semibold">AWS</h3><p class="text-gray-500 text-sm">Lambda, ECS, S3</p></div>
+        <div class="glass rounded-2xl p-6 text-center skill-tag"><i class="fas fa-code text-4xl text-pink-400 mb-3"></i><h3 class="font-semibold">TypeScript</h3><p class="text-gray-500 text-sm">Strict mode</p></div>
+        <div class="glass rounded-2xl p-6 text-center skill-tag"><i class="fas fa-cloud text-4xl text-indigo-400 mb-3"></i><h3 class="font-semibold">Docker</h3><p class="text-gray-500 text-sm">Kubernetes</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects" class="py-24 px-6 bg-[#121020]">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-violet-400 text-sm tracking-widest uppercase mb-2">Recent Work</p>
+      <h2 class="text-4xl font-bold mb-12">Featured Projects</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="glass rounded-2xl overflow-hidden project-card">
+          <div class="h-48 bg-gradient-to-br from-violet-600 to-indigo-800 flex items-center justify-center text-5xl">🛒</div>
+          <div class="p-6">
+            <span class="text-xs bg-violet-500/20 text-violet-300 px-3 py-1 rounded-full">Next.js</span>
+            <h3 class="text-xl font-bold mt-3 mb-2">MarketDash</h3>
+            <p class="text-gray-400 text-sm mb-4">Real-time analytics dashboard for e-commerce platforms with live data streams.</p>
+            <a href="#" class="text-violet-400 text-sm font-medium hover:underline">Live Demo →</a>
+          </div>
+        </div>
+        <div class="glass rounded-2xl overflow-hidden project-card">
+          <div class="h-48 bg-gradient-to-br from-pink-600 to-rose-800 flex items-center justify-center text-5xl">🎵</div>
+          <div class="p-6">
+            <span class="text-xs bg-pink-500/20 text-pink-300 px-3 py-1 rounded-full">React Native</span>
+            <h3 class="text-xl font-bold mt-3 mb-2">TuneFlow</h3>
+            <p class="text-gray-400 text-sm mb-4">Collaborative playlist creation app with real-time sync and social features.</p>
+            <a href="#" class="text-violet-400 text-sm font-medium hover:underline">Live Demo →</a>
+          </div>
+        </div>
+        <div class="glass rounded-2xl overflow-hidden project-card">
+          <div class="h-48 bg-gradient-to-br from-emerald-600 to-teal-800 flex items-center justify-center text-5xl">🤖</div>
+          <div class="p-6">
+            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full">Python</span>
+            <h3 class="text-xl font-bold mt-3 mb-2">BotForge</h3>
+            <p class="text-gray-400 text-sm mb-4">No-code chatbot builder with NLP, drag-drop flows, and multi-channel deploy.</p>
+            <a href="#" class="text-violet-400 text-sm font-medium hover:underline">Live Demo →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience" class="py-24 px-6">
+    <div class="max-w-4xl mx-auto">
+      <p class="text-violet-400 text-sm tracking-widest uppercase mb-2">Career</p>
+      <h2 class="text-4xl font-bold mb-16">Experience</h2>
+      <div class="space-y-12">
+        <div class="timeline-line relative pl-8">
+          <div class="timeline-dot"></div>
+          <span class="text-sm text-violet-400">2022 — Present</span>
+          <h3 class="text-xl font-bold">Senior Frontend Engineer</h3>
+          <p class="text-gray-400">Stellar Labs</p>
+          <p class="text-gray-500 text-sm mt-2">Architected micro-frontend infrastructure serving 2M+ users. Led migration from Angular to React, reducing bundle size by 60%.</p>
+        </div>
+        <div class="timeline-line relative pl-8">
+          <div class="timeline-dot"></div>
+          <span class="text-sm text-violet-400">2019 — 2022</span>
+          <h3 class="text-xl font-bold">Full-Stack Developer</h3>
+          <p class="text-gray-400">DataPulse Inc.</p>
+          <p class="text-gray-500 text-sm mt-2">Built real-time data visualization platform. Designed RESTful APIs serving 500+ enterprise clients.</p>
+        </div>
+        <div class="relative pl-8">
+          <div class="timeline-dot"></div>
+          <span class="text-sm text-violet-400">2017 — 2019</span>
+          <h3 class="text-xl font-bold">Junior Developer</h3>
+          <p class="text-gray-400">WebCraft Agency</p>
+          <p class="text-gray-500 text-sm mt-2">Delivered 30+ client projects across React, Vue, and WordPress. Established CI/CD pipelines and code review practices.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="testimonials" class="py-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-violet-400 text-sm tracking-widest uppercase mb-2">Kind Words</p>
+      <h2 class="text-4xl font-bold mb-12">What People Say</h2>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="glass rounded-2xl p-8">
+          <div class="flex text-yellow-400 text-sm mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p class="text-gray-400 mb-6 italic">"Alex is the kind of developer every team needs. Deep technical skills, great communication, and a genuine passion for building quality products."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-violet-500/20 rounded-full flex items-center justify-center text-violet-300 font-bold">JT</div>
+            <div><h4 class="font-semibold">James Turner</h4><p class="text-gray-500 text-sm">CTO, Stellar Labs</p></div>
+          </div>
+        </div>
+        <div class="glass rounded-2xl p-8">
+          <div class="flex text-yellow-400 text-sm mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p class="text-gray-400 mb-6 italic">"Working with Alex on the DataPulse platform was a fantastic experience. He delivered complex features on time and mentored junior developers along the way."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-300 font-bold">PR</div>
+            <div><h4 class="font-semibold">Priya Rao</h4><p class="text-gray-500 text-sm">VP Engineering, DataPulse</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="py-24 px-6 bg-[#121020]">
+    <div class="max-w-2xl mx-auto text-center">
+      <p class="text-violet-400 text-sm tracking-widest uppercase mb-2">Let's Talk</p>
+      <h2 class="text-4xl font-bold mb-6">Get In Touch</h2>
+      <p class="text-gray-400 mb-10">Have a project in mind? Let's build something great together.</p>
+      <form class="space-y-5">
+        <div class="grid md:grid-cols-2 gap-5">
+          <input type="text" placeholder="Your Name" class="w-full glass rounded-xl px-5 py-4 text-gray-200 outline-none focus:border-violet-500 border border-transparent">
+          <input type="email" placeholder="Your Email" class="w-full glass rounded-xl px-5 py-4 text-gray-200 outline-none focus:border-violet-500 border border-transparent">
+        </div>
+        <input type="text" placeholder="Subject" class="w-full glass rounded-xl px-5 py-4 text-gray-200 outline-none focus:border-violet-500 border border-transparent">
+        <textarea placeholder="Your Message" rows="5" class="w-full glass rounded-xl px-5 py-4 text-gray-200 outline-none focus:border-violet-500 border border-transparent resize-none"></textarea>
+        <button class="bg-gradient-to-r from-violet-500 to-pink-500 px-10 py-4 rounded-xl font-semibold hover:opacity-90 transition w-full md:w-auto">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+  <footer class="border-t border-gray-800 py-8 text-center text-gray-500 text-sm">
+    <p>&copy; 2026 Alex Rivera. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

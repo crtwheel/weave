@@ -3,96 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weave — Product</title>
-
-  <!-- Fonts -->
+  <title>Weave — Template</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
-
-  <!-- Supabase -->
-  <script src="js/supabase.js"></script>
 </head>
 <body>
   <header class="site-header">
     <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
     <nav class="nav-links">
       <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
       <a href="faq.html">FAQ</a>
       <a href="dashboard.html">Dashboard</a>
     </nav>
   </header>
 
   <main class="container" style="padding-top: 7rem; padding-bottom: 4rem;">
+    <a href="templates.html" style="display:inline-flex;align-items:center;gap:0.25rem;color:var(--text-secondary);text-decoration:none;font-size:0.85rem;margin-bottom:2rem;transition:color 0.2s;">&larr; Back</a>
 
-    <a href="index.html" style="display: inline-flex; align-items: center; gap: 0.25rem; color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; margin-bottom: 2rem; transition: color 0.2s;">← Back</a>
-
-    <!-- Loading skeleton -->
     <div id="loading-state">
       <div class="product-layout">
-        <div class="skeleton" style="aspect-ratio: 16/10; border-radius: var(--radius-md);"></div>
+        <div class="skeleton" style="aspect-ratio:16/10;border-radius:var(--radius-md);"></div>
         <div>
-          <div class="skeleton" style="height: 2rem; width: 70%; margin-bottom: 1rem;"></div>
-          <div class="skeleton" style="height: 1rem; width: 100%; margin-bottom: 0.5rem;"></div>
-          <div class="skeleton" style="height: 1rem; width: 100%; margin-bottom: 0.5rem;"></div>
-          <div class="skeleton" style="height: 1rem; width: 60%; margin-bottom: 2rem;"></div>
-          <div class="skeleton" style="height: 2.5rem; width: 40%; margin-bottom: 1rem;"></div>
-          <div class="skeleton" style="height: 1rem; width: 50%;"></div>
+          <div class="skeleton" style="height:2rem;width:70%;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:1rem;width:100%;margin-bottom:0.5rem;"></div>
+          <div class="skeleton" style="height:1rem;width:100%;margin-bottom:0.5rem;"></div>
+          <div class="skeleton" style="height:1rem;width:60%;margin-bottom:2rem;"></div>
+          <div class="skeleton" style="height:2.5rem;width:40%;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:1rem;width:50%;"></div>
         </div>
       </div>
     </div>
 
-    <!-- Error state -->
-    <div id="error-state" style="display: none;">
-      <div class="page-header" style="text-align: center;">
-        <h1 class="page-title">Product Not Found</h1>
-        <p class="page-subtitle" style="margin: 0 auto;">This template doesn't exist or has been removed.</p>
-        <a href="index.html" class="btn btn-outline" style="margin-top: 1.5rem;">Browse Templates</a>
+    <div id="error-state" style="display:none;">
+      <div class="page-header" style="text-align:center;">
+        <h1 class="page-title">Template Not Found</h1>
+        <p class="page-subtitle" style="margin:0 auto;">This template doesn't exist or has been removed.</p>
+        <a href="templates.html" class="btn btn-outline" style="margin-top:1.5rem;">Browse Templates</a>
       </div>
     </div>
 
-    <!-- Product content -->
-    <div id="product-content" style="display: none;">
+    <div id="product-content" style="display:none;">
       <div class="product-layout">
-
-        <!-- Preview -->
         <div class="product-preview" id="product-preview">PREVIEW</div>
-
-        <!-- Info -->
         <div>
-          <span class="hero-badge">Template</span>
-
-          <h1 class="page-title" id="product-name" style="margin-bottom: 0.5rem;"></h1>
-
-          <p class="page-subtitle" id="product-desc" style="margin-bottom: 1.5rem; max-width: 100%;"></p>
-
+          <span class="hero-badge" id="category-badge">Template</span>
+          <h1 class="page-title" id="product-name" style="margin-bottom:0.5rem;"></h1>
+          <p class="page-subtitle" id="product-desc" style="margin-bottom:1.5rem;max-width:100%;"></p>
           <div class="price-display" id="product-price"></div>
           <div class="price-sub" id="product-price-eth"></div>
 
-          <!-- What's Included -->
-          <h3 class="font-display" style="font-size: 0.9rem; margin: 1.5rem 0 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);">What's Included</h3>
+          <h3 class="font-display" style="font-size:0.9rem;margin:1.5rem 0 0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-secondary);">What's Included</h3>
           <ul class="feature-list" id="features-list"></ul>
 
-          <!-- How to Buy -->
-          <h3 class="font-display" style="font-size: 0.9rem; margin: 2rem 0 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);">How to Buy</h3>
+          <h3 class="font-display" style="font-size:0.9rem;margin:2rem 0 0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-secondary);">How to Buy</h3>
           <ol class="steps-list">
             <li><strong>Send payment</strong> to the wallet address below for the exact ETH amount shown above.</li>
             <li><strong>Copy your transaction hash</strong> (TxID) from your wallet after sending.</li>
             <li><strong>Fill out the form below</strong> with your transaction details to verify your purchase.</li>
           </ol>
 
-          <!-- Wallet -->
-          <div class="wallet-box" style="margin-bottom: 2rem;">
+          <div class="wallet-box" style="margin-bottom:2rem;">
             <span class="addr" id="wallet-display"></span>
             <button class="copy-btn" onclick="copyWallet()">Copy</button>
           </div>
 
-          <!-- Purchase verification form -->
           <div class="purchase-card">
-            <h3 class="font-display" style="font-size: 1rem; margin-bottom: 1rem;">Verify Your Purchase</h3>
+            <h3 class="font-display" style="font-size:1rem;margin-bottom:1rem;">Verify Your Purchase</h3>
             <form id="purchase-form">
               <div class="form-group">
                 <label class="form-label" for="tx-hash">Transaction Hash *</label>
@@ -106,17 +85,40 @@
                 <label class="form-label" for="discord">Discord Username</label>
                 <input class="form-input" id="discord" placeholder="user#0000">
               </div>
-              <button type="submit" class="btn btn-accent" id="submit-btn" style="width: 100%;">Submit</button>
+              <button type="submit" class="btn btn-accent" id="submit-btn" style="width:100%;">Submit</button>
               <div id="form-status"></div>
             </form>
           </div>
+        </div>
+      </div>
 
+      <div style="margin-top:5rem;">
+        <div class="section-header">
+          <h2 class="section-title">Related Templates</h2>
+          <p class="section-subtitle">You might also like these</p>
+        </div>
+        <div id="related-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;">
+          <div class="skeleton" style="height:280px;"></div>
+          <div class="skeleton" style="height:280px;"></div>
+          <div class="skeleton" style="height:280px;"></div>
         </div>
       </div>
     </div>
-
   </main>
 
+  <footer class="site-footer">
+    <p>Pay with ETH to: <span class="font-mono" style="color:var(--text)">0xbe9Db9c86B79617231a4861fb54ef278447D43fb</span></p>
+    <p style="margin-top:0.5rem">&copy; 2026 Weave</p>
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/storage.js"></script>
+  <script src="js/services/templates.js"></script>
+  <script src="js/services/purchases.js"></script>
   <script>
     let currentProductId = null;
 
@@ -131,15 +133,14 @@
       }
 
       try {
-        const product = await sbSelect('templates', { eq: ['slug', slug], single: true });
-
+        const product = await sbTemplates.get(slug);
         if (!product) {
           document.getElementById('loading-state').style.display = 'none';
           document.getElementById('error-state').style.display = 'block';
           return;
         }
-
         renderProduct(product);
+        loadRelated(product.category_slug, product.id);
       } catch (err) {
         sbLog.error('Failed to load product', err);
         document.getElementById('loading-state').style.display = 'none';
@@ -157,9 +158,9 @@
         preview.innerHTML = '<img src="' + product.preview_url + '" alt="' + product.name + '">';
       }
 
+      document.getElementById('category-badge').textContent = (product.category_slug || 'Template').charAt(0).toUpperCase() + (product.category_slug || 'Template').slice(1);
       document.getElementById('product-name').textContent = product.name;
       document.getElementById('product-desc').textContent = product.description || '';
-
       document.getElementById('product-price').textContent = product.price_usd ? '$' + product.price_usd : '';
       document.getElementById('product-price-eth').textContent = product.price_eth ? '~' + product.price_eth + ' ETH' : '';
 
@@ -169,10 +170,41 @@
       }
 
       document.getElementById('wallet-display').textContent = WALLET_ADDRESS;
-
       document.getElementById('purchase-form').addEventListener('submit', function(e) {
         submitPurchase(e, product.id);
       });
+    }
+
+    async function loadRelated(categorySlug, excludeId) {
+      const grid = document.getElementById('related-grid');
+      try {
+        let related;
+        if (categorySlug) {
+          related = await sbTemplates.byCategory(categorySlug);
+          related = related.filter(t => t.id !== excludeId);
+        }
+        if (!related || related.length < 2) {
+          const all = await sbTemplates.popular();
+          related = all.filter(t => t.id !== excludeId);
+        }
+        if (!related.length) {
+          grid.innerHTML = '';
+          return;
+        }
+        grid.innerHTML = related.slice(0, 3).map(t => `
+          <a href="template.html?slug=${t.slug}" class="card">
+            <div class="card-preview">${t.preview_url ? `<img src="${t.preview_url}" alt="${t.name}">` : 'PREVIEW'}</div>
+            <div class="card-body">
+              <div class="card-title">${t.name}</div>
+              <div class="card-desc">${(t.description || '').substring(0, 100)}</div>
+              <div class="card-price">$${t.price_usd} <span>~${t.price_eth} ETH</span></div>
+            </div>
+          </a>
+        `).join('');
+      } catch (err) {
+        sbLog.error('Failed to load related templates', err);
+        grid.innerHTML = '';
+      }
     }
 
     function copyWallet() {
@@ -198,15 +230,14 @@
       sbLog.info('Submitting purchase', { templateId: templateId, user: user.id });
 
       try {
-        await sbInsert('purchases', {
+        await sbPurchases.create({
           user_id: user.id,
           template_id: templateId,
           tx_hash: document.getElementById('tx-hash').value.trim(),
           sender_wallet: document.getElementById('sender-wallet').value.trim(),
-          discord_username: document.getElementById('discord').value.trim() || null,
-          status: 'pending'
+          discord_username: document.getElementById('discord').value.trim() || null
         });
-        sbLog.ok('Purchase submitted');
+        sbNotify.success('Purchase submitted! Check your dashboard for verification.');
         statusEl.innerHTML = '<div class="alert alert-success">Submitted! Check your dashboard for verification status.</div>';
         document.getElementById('purchase-form').reset();
       } catch (err) {

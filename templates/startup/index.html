@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nextera — The Future of Work</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    .gradient-hero { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); }
+    .glow { box-shadow: 0 0 40px rgba(99,102,241,0.3); }
+    .feature-card { transition: all 0.3s ease; border: 1px solid transparent; }
+    .feature-card:hover { transform: translateY(-6px); border-color: rgba(99,102,241,0.2); box-shadow: 0 12px 40px rgba(99,102,241,0.08); }
+    .pricing-card { transition: all 0.3s ease; }
+    .pricing-card:hover { transform: translateY(-4px); }
+    .pricing-card.featured { border: 2px solid #6366f1; position: relative; }
+    .pricing-card.featured::before { content: 'Most Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #6366f1; color: white; font-size: 11px; font-weight: 700; padding: 3px 14px; border-radius: 999px; text-transform: uppercase; letter-spacing: 1px; }
+    .testimonial-card { transition: all 0.3s ease; }
+    .testimonial-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .float-anim { animation: float 4s ease-in-out infinite; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp 0.6s ease forwards; opacity: 0; }
+    .fade-up:nth-child(1) { animation-delay: 0.1s; }
+    .fade-up:nth-child(2) { animation-delay: 0.2s; }
+    .fade-up:nth-child(3) { animation-delay: 0.3s; }
+  </style>
+</head>
+<body class="text-gray-800 antialiased">
+
+  <nav class="absolute top-0 w-full z-50">
+    <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">N</div>
+        <span class="text-white text-xl font-bold">Nextera</span>
+      </div>
+      <div class="hidden md:flex gap-8 text-sm font-medium text-gray-300">
+        <a href="#features" class="hover:text-white transition">Features</a>
+        <a href="#testimonials" class="hover:text-white transition">Testimonials</a>
+        <a href="#pricing" class="hover:text-white transition">Pricing</a>
+      </div>
+      <a href="#waitlist" class="bg-white text-indigo-600 px-6 py-2.5 rounded-full text-sm font-bold hover:bg-gray-100 transition glow">Join Waitlist</a>
+    </div>
+  </nav>
+
+  <section class="gradient-hero min-h-screen flex items-center relative overflow-hidden">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cdefs%3E%3Cpattern id=\"g\" patternUnits=\"userSpaceOnUse\" width=\"60\" height=\"60\"%3E%3Cpath d=\"M60 0L0 60\" stroke=\"rgba(255,255,255,0.03)\" stroke-width=\"1\" fill=\"none\"/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=\"100%25\" height=\"100%25\" fill=\"url(%23g)\"/%3E%3C/svg%3E')] opacity-50"></div>
+    <div class="max-w-7xl mx-auto px-6 relative z-10 pt-24">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div class="fade-up">
+          <span class="bg-indigo-500/20 text-indigo-300 text-xs font-semibold px-4 py-1.5 rounded-full border border-indigo-500/30">Now in Early Access</span>
+          <h1 class="text-5xl md:text-7xl font-black text-white mt-8 mb-6 leading-tight">The Future of <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Remote Work</span></h1>
+          <p class="text-gray-400 text-lg md:text-xl mb-8 max-w-lg">Nextera brings your distributed team together with AI-powered collaboration, intelligent scheduling, and seamless workflow integration.</p>
+          <div class="flex gap-4 flex-wrap">
+            <a href="#waitlist" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-full font-bold hover:opacity-90 transition shadow-lg shadow-indigo-500/25">Get Early Access</a>
+            <a href="#features" class="border border-gray-600 text-gray-300 px-8 py-4 rounded-full font-medium hover:border-indigo-400 hover:text-white transition"><i class="fas fa-play mr-2"></i>See How It Works</a>
+          </div>
+          <div class="flex items-center gap-8 mt-12 text-sm text-gray-500">
+            <div><span class="text-white font-bold text-2xl">10K+</span><p class="text-xs">Waitlist Members</p></div>
+            <div><span class="text-white font-bold text-2xl">98%</span><p class="text-xs">Satisfaction Rate</p></div>
+            <div><span class="text-white font-bold text-2xl">50+</span><p class="text-xs">Integrations</p></div>
+          </div>
+        </div>
+        <div class="hidden lg:flex justify-center float-anim">
+          <div class="relative">
+            <div class="w-[500px] h-[400px] bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-3xl border border-indigo-500/30 backdrop-blur-xl p-8 flex items-center justify-center">
+              <div class="text-center">
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                  <div class="bg-white/10 rounded-xl p-4"><div class="w-8 h-8 bg-indigo-400 rounded-lg mx-auto mb-2"></div><p class="text-white text-xs">Tasks</p></div>
+                  <div class="bg-white/10 rounded-xl p-4"><div class="w-8 h-8 bg-purple-400 rounded-lg mx-auto mb-2"></div><p class="text-white text-xs">Chat</p></div>
+                  <div class="bg-white/10 rounded-xl p-4"><div class="w-8 h-8 bg-pink-400 rounded-lg mx-auto mb-2"></div><p class="text-white text-xs">Calendar</p></div>
+                </div>
+                <div class="w-64 h-2 bg-white/10 rounded-full mx-auto mb-2"><div class="w-3/4 h-full bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></div></div>
+                <p class="text-gray-400 text-xs">Team productivity up 67%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="py-24 px-6 bg-white">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-indigo-500 text-sm font-semibold tracking-widest uppercase">Features</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4 mb-4">Everything your team needs</h2>
+        <p class="text-gray-500 text-lg max-w-2xl mx-auto">From AI scheduling to real-time collaboration — we've built the toolkit for modern distributed teams.</p>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="feature-card bg-gray-50 rounded-2xl p-8">
+          <div class="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-500 text-2xl mb-5"><i class="fas fa-robot"></i></div>
+          <h3 class="text-xl font-bold mb-3">AI Scheduling</h3>
+          <p class="text-gray-500">Smart calendar that learns your team's working patterns and automatically finds the best meeting times across time zones.</p>
+        </div>
+        <div class="feature-card bg-gray-50 rounded-2xl p-8">
+          <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-500 text-2xl mb-5"><i class="fas fa-bolt"></i></div>
+          <h3 class="text-xl font-bold mb-3">Real-time Sync</h3>
+          <p class="text-gray-500">Instant document collaboration with live cursors, threaded comments, and offline-first architecture.</p>
+        </div>
+        <div class="feature-card bg-gray-50 rounded-2xl p-8">
+          <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-500 text-2xl mb-5"><i class="fas fa-shield-alt"></i></div>
+          <h3 class="text-xl font-bold mb-3">Enterprise Security</h3>
+          <p class="text-gray-500">End-to-end encryption, SOC 2 compliance, role-based access, and audit logs for every action.</p>
+        </div>
+        <div class="feature-card bg-gray-50 rounded-2xl p-8">
+          <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-500 text-2xl mb-5"><i class="fas fa-chart-line"></i></div>
+          <h3 class="text-xl font-bold mb-3">Analytics Dashboard</h3>
+          <p class="text-gray-500">Understand team velocity, identify bottlenecks, and track project health with customizable reports.</p>
+        </div>
+        <div class="feature-card bg-gray-50 rounded-2xl p-8">
+          <div class="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-500 text-2xl mb-5"><i class="fas fa-plug"></i></div>
+          <h3 class="text-xl font-bold mb-3">50+ Integrations</h3>
+          <p class="text-gray-500">Connect the tools you already use — Slack, GitHub, Jira, Notion, Google Workspace, and more.</p>
+        </div>
+        <div class="feature-card bg-gray-50 rounded-2xl p-8">
+          <div class="w-14 h-14 bg-sky-100 rounded-2xl flex items-center justify-center text-sky-500 text-2xl mb-5"><i class="fas fa-video"></i></div>
+          <h3 class="text-xl font-bold mb-3">Built-in Video</h3>
+          <p class="text-gray-500">Crystal-clear video calls with AI transcriptions, smart summaries, and action item extraction.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="testimonials" class="py-24 px-6 bg-gray-50">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-indigo-500 text-sm font-semibold tracking-widest uppercase">Testimonials</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4 mb-4">Loved by teams worldwide</h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="testimonial-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <div class="flex text-yellow-400 text-sm mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p class="text-gray-700 mb-6 leading-relaxed">"Nextera completely transformed how our remote team collaborates. The AI scheduling alone saves each person about 3 hours per week."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-500 font-bold">SK</div>
+            <div><h4 class="font-semibold text-sm">Sarah Kim</h4><p class="text-xs text-gray-400">CTO, Pulse Analytics</p></div>
+          </div>
+        </div>
+        <div class="testimonial-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <div class="flex text-yellow-400 text-sm mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p class="text-gray-700 mb-6 leading-relaxed">"We evaluated 12 different tools before choosing Nextera. The integration ecosystem and real-time sync are unmatched in the market."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-500 font-bold">MR</div>
+            <div><h4 class="font-semibold text-sm">Marcus Rodriguez</h4><p class="text-xs text-gray-400">VP Engineering, Finova</p></div>
+          </div>
+        </div>
+        <div class="testimonial-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <div class="flex text-yellow-400 text-sm mb-4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p class="text-gray-700 mb-6 leading-relaxed">"The analytics dashboard gives us visibility we never had before. We've improved our sprint velocity by 40% since switching to Nextera."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 font-bold">AL</div>
+            <div><h4 class="font-semibold text-sm">Aisha Lopez</h4><p class="text-xs text-gray-400">Head of Product, Beacon</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="py-24 px-6 bg-white">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-indigo-500 text-sm font-semibold tracking-widest uppercase">Pricing</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-4 mb-4">Simple, transparent pricing</h2>
+        <p class="text-gray-500 text-lg">No hidden fees. No surprises. Start free, upgrade when you grow.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div class="pricing-card bg-gray-50 rounded-3xl p-8 text-center">
+          <h3 class="text-xl font-bold mb-2">Starter</h3>
+          <p class="text-gray-500 text-sm mb-6">For small teams getting started</p>
+          <div class="mb-8"><span class="text-5xl font-black">$0</span><span class="text-gray-400">/mo</span></div>
+          <ul class="text-left space-y-4 mb-8 text-sm">
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>Up to 10 team members</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>Core collaboration features</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>5GB storage</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>Community support</li>
+          </ul>
+          <a href="#waitlist" class="block border-2 border-gray-200 text-gray-600 py-3 rounded-full font-semibold hover:border-indigo-500 hover:text-indigo-500 transition">Get Started Free</a>
+        </div>
+        <div class="pricing-card featured bg-white rounded-3xl p-8 text-center shadow-xl scale-105">
+          <h3 class="text-xl font-bold mb-2">Professional</h3>
+          <p class="text-gray-500 text-sm mb-6">For growing teams that need more</p>
+          <div class="mb-8"><span class="text-5xl font-black">$29</span><span class="text-gray-400">/mo</span></div>
+          <ul class="text-left space-y-4 mb-8 text-sm">
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>Up to 50 team members</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>AI scheduling &amp; analytics</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>50GB storage</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>Priority support</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>All integrations</li>
+          </ul>
+          <a href="#waitlist" class="block bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 rounded-full font-semibold hover:opacity-90 transition shadow-lg shadow-indigo-500/25">Start 14-Day Trial</a>
+        </div>
+        <div class="pricing-card bg-gray-50 rounded-3xl p-8 text-center">
+          <h3 class="text-xl font-bold mb-2">Enterprise</h3>
+          <p class="text-gray-500 text-sm mb-6">For organizations with advanced needs</p>
+          <div class="mb-8"><span class="text-5xl font-black">$99</span><span class="text-gray-400">/mo</span></div>
+          <ul class="text-left space-y-4 mb-8 text-sm">
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>Unlimited team members</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>Everything in Professional</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>Unlimited storage</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>Dedicated account manager</li>
+            <li><i class="fas fa-check text-emerald-500 mr-3"></i>SSO &amp; audit logs</li>
+          </ul>
+          <a href="#waitlist" class="block border-2 border-gray-200 text-gray-600 py-3 rounded-full font-semibold hover:border-indigo-500 hover:text-indigo-500 transition">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="waitlist" class="py-24 px-6 gradient-hero">
+    <div class="max-w-2xl mx-auto text-center">
+      <span class="text-indigo-300 text-sm font-semibold tracking-widest uppercase">Get Early Access</span>
+      <h2 class="text-4xl md:text-5xl font-black text-white mt-4 mb-4">You're invited to the future</h2>
+      <p class="text-gray-400 text-lg mb-10">Join 10,000+ teams already on the waitlist. Be the first to experience Nextera when we launch.</p>
+      <form class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+        <input type="email" placeholder="Enter your work email" class="flex-1 px-6 py-4 rounded-full text-sm outline-none bg-white/10 border border-gray-600 text-white placeholder-gray-400 focus:border-indigo-400">
+        <button class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-full font-bold hover:opacity-90 transition shadow-lg shadow-indigo-500/25 whitespace-nowrap">Join Waitlist</button>
+      </form>
+      <p class="text-gray-500 text-xs mt-4">No spam, ever. We'll only email you about your waitlist status.</p>
+    </div>
+  </section>
+
+  <footer class="bg-[#0f172a] border-t border-gray-800 py-12 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
+      <div class="flex items-center gap-2 mb-4 md:mb-0">
+        <div class="w-6 h-6 bg-indigo-500 rounded flex items-center justify-center text-white text-[8px] font-bold">N</div>
+        <span class="text-white font-bold">Nextera</span>
+      </div>
+      <div class="flex gap-8">
+        <a href="#" class="hover:text-white transition">Privacy Policy</a>
+        <a href="#" class="hover:text-white transition">Terms of Service</a>
+        <a href="#" class="hover:text-white transition">Contact</a>
+      </div>
+      <p class="mt-4 md:mt-0">&copy; 2026 Nextera Inc. All rights reserved.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

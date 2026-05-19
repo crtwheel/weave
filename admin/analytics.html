@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand"><span class="logo-icon">W</span> Weave</div>
+      <nav class="sidebar-nav">
+        <a href="index.html">Dashboard</a>
+        <a href="users.html">Users</a>
+        <a href="templates.html">Templates</a>
+        <a href="analytics.html" class="active">Analytics</a>
+        <a href="logs.html">Audit Log</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title">Analytics</h1>
+        <button class="btn btn-outline btn-sm" onclick="handleSignOut()">Sign Out</button>
+      </header>
+      <div class="admin-content">
+        <div class="stats-row" id="analytics-stats">
+          <div class="stat-card"><div class="stat-value" id="stat-total-users">—</div><div class="stat-label">Total Users</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-new-users">—</div><div class="stat-label">New Users (this month)</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-total-purchases">—</div><div class="stat-label">Total Purchases</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-total-revenue">—</div><div class="stat-label">Total Revenue</div></div>
+        </div>
+
+        <div class="chart-grid">
+          <div class="chart-card glass">
+            <h3 class="chart-title">Purchases Over Time</h3>
+            <div class="bar-chart" id="purchases-chart"></div>
+          </div>
+          <div class="chart-card glass">
+            <h3 class="chart-title">Revenue by Month</h3>
+            <div class="bar-chart" id="revenue-chart"></div>
+          </div>
+          <div class="chart-card glass">
+            <h3 class="chart-title">Top Templates</h3>
+            <div class="top-list" id="top-templates"></div>
+          </div>
+          <div class="chart-card glass">
+            <h3 class="chart-title">Category Distribution</h3>
+            <div class="h-bar-chart" id="category-chart"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:2rem; }
+    .chart-card { padding:1.5rem; }
+    .chart-title { font-family:var(--font-display); font-size:0.85rem; font-weight:700; margin-bottom:1.25rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-secondary); }
+    .bar-chart { display:flex; align-items:flex-end; gap:0.5rem; height:160px; padding:0 0.25rem; }
+    .bar-chart .bar { flex:1; background:linear-gradient(to top, var(--accent), #f97316); border-radius:4px 4px 0 0; min-height:4px; transition:height 0.6s ease; position:relative; }
+    .bar-chart .bar-label { position:absolute; bottom:-1.4rem; left:50%; transform:translateX(-50%); font-size:0.6rem; font-family:var(--font-display); color:var(--text-tertiary); white-space:nowrap; }
+    .top-list { list-style:none; }
+    .top-list li { display:flex; justify-content:space-between; padding:0.6rem 0; border-bottom:1px solid var(--border); font-size:0.85rem; }
+    .top-list li:last-child { border-bottom:none; }
+    .top-list .count { font-family:var(--font-display); font-size:0.75rem; color:var(--text-secondary); }
+    .h-bar-chart .h-bar-row { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.6rem; }
+    .h-bar-chart .h-bar-label { font-size:0.8rem; min-width:80px; color:var(--text-secondary); }
+    .h-bar-chart .h-bar { height:20px; background:linear-gradient(90deg, var(--accent), #f97316); border-radius:4px; transition:width 0.6s ease; }
+    .h-bar-chart .h-bar-count { font-family:var(--font-display); font-size:0.7rem; color:var(--text-tertiary); min-width:24px; text-align:right; }
+    @media (max-width:768px) { .chart-grid { grid-template-columns:1fr; } }
+  </style>
+
+  <script src="../js/supabase.js"></script>
+  <script src="../js/services/validation.js"></script>
+  <script src="../js/services/cache.js"></script>
+  <script src="../js/services/auth.js"></script>
+  <script src="../js/services/notifications.js"></script>
+  <script src="../js/services/storage.js"></script>
+  <script src="../js/services/templates.js"></script>
+  <script src="../js/services/purchases.js"></script>
+  <script src="../js/services/analytics.js"></script>
+  <script src="../js/services/admin.js"></script>
+  <script>
+    async function handleSignOut() {
+      if ('sbAuth' in window) await sbAuth.signOut();
+      else await sbSignOut();
+      window.location.href = '../dashboard.html';
+    }
+
+    async function loadAnalytics() {
+      try {
+        const stats = await sbAdmin.getStats();
+        document.getElementById('stat-total-users').textContent = stats.total_users ?? '—';
+        document.getElementById('stat-new-users').textContent = stats.new_users_this_month ?? '—';
+        document.getElementById('stat-total-purchases').textContent = stats.total_purchases ?? '—';
+        document.getElementById('stat-total-revenue').textContent = stats.total_revenue != null ? '$' + Number(stats.total_revenue).toFixed(2) : '—';
+      } catch (err) {
+        sbLog.error('Failed to load analytics stats', err);
+      }
+    }
+
+    function renderBarChart(containerId, data, labelKey, valueKey, height) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      if (!data || !data.length) {
+        container.innerHTML = '<div style="width:100%;text-align:center;color:var(--text-tertiary);font-size:0.8rem;padding-top:60px;">No data</div>';
+        return;
+      }
+      const max = Math.max(...data.map(d => d[valueKey] || 0));
+      container.innerHTML = data.map(d => {
+        const pct = max > 0 ? ((d[valueKey] || 0) / max * 100) : 0;
+        return '<div class="bar" style="height:' + Math.max(pct, 4) + '%;"><div class="bar-label">' + d[labelKey] + '</div></div>';
+      }).join('');
+    }
+
+    function renderHorizontalBarChart(containerId, data, labelKey, valueKey) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      if (!data || !data.length) {
+        container.innerHTML = '<div style="text-align:center;color:var(--text-tertiary);font-size:0.8rem;padding:1rem 0;">No data</div>';
+        return;
+      }
+      const max = Math.max(...data.map(d => d[valueKey] || 0));
+      container.innerHTML = data.map(d => {
+        const pct = max > 0 ? ((d[valueKey] || 0) / max * 100) : 0;
+        return '<div class="h-bar-row"><span class="h-bar-label">' + d[labelKey] + '</span><div class="h-bar" style="width:' + Math.max(pct, 4) + '%;"></div><span class="h-bar-count">' + (d[valueKey] || 0) + '</span></div>';
+      }).join('');
+    }
+
+    function renderTopList(containerId, data, labelKey, valueKey) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      if (!data || !data.length) {
+        container.innerHTML = '<div style="text-align:center;color:var(--text-tertiary);font-size:0.8rem;padding:1rem 0;">No data</div>';
+        return;
+      }
+      container.innerHTML = '<ol>' + data.map(d => '<li><span>' + d[labelKey] + '</span><span class="count">' + (d[valueKey] || 0) + ' downloads</span></li>').join('') + '</ol>';
+    }
+
+    async function loadCharts() {
+      try {
+        const templates = await sbAdmin.listTemplates();
+        if (templates && templates.length) {
+          const sorted = [...templates].sort((a, b) => (b.downloads || 0) - (a.downloads || 0)).slice(0, 10);
+          renderTopList('top-templates', sorted, 'name', 'downloads');
+
+          const catMap = {};
+          templates.forEach(t => {
+            const cat = t.category_slug || 'other';
+            catMap[cat] = (catMap[cat] || 0) + 1;
+          });
+          const catData = Object.entries(catMap).map(([k, v]) => ({ label: k, count: v }));
+          renderHorizontalBarChart('category-chart', catData, 'label', 'count');
+        }
+      } catch (err) {
+        sbLog.error('Failed to load template charts', err);
+      }
+
+      try {
+        const purchases = await sbAdmin.listPurchases();
+        if (purchases && purchases.length) {
+          const monthMap = {};
+          purchases.forEach(p => {
+            const d = new Date(p.created_at);
+            const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            monthMap[key] = (monthMap[key] || 0) + 1;
+          });
+          const months = Object.keys(monthMap).sort().slice(-12);
+          const purchasesData = months.map(m => ({ label: m.slice(5), count: monthMap[m] }));
+          renderBarChart('purchases-chart', purchasesData, 'label', 'count', 160);
+
+          const revMap = {};
+          purchases.filter(p => p.status === 'verified').forEach(p => {
+            const d = new Date(p.created_at);
+            const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            revMap[key] = (revMap[key] || 0) + (p.amount || 0);
+          });
+          const revMonths = Object.keys(revMap).sort().slice(-12);
+          const revData = revMonths.map(m => ({ label: m.slice(5), count: Number(revMap[m]).toFixed(0) }));
+          renderBarChart('revenue-chart', revData, 'label', 'count', 160);
+        }
+      } catch (err) {
+        sbLog.error('Failed to load purchase charts', err);
+      }
+    }
+
+    async function init() {
+      const user = await sbGetUser();
+      if (!user) { window.location.href = '../dashboard.html'; return; }
+      if ('sbAuth' in window) await sbAuth.requireRole('admin').catch(() => {});
+      loadAnalytics();
+      loadCharts();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

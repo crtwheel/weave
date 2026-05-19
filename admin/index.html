@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand"><span class="logo-icon">W</span> Weave</div>
+      <nav class="sidebar-nav">
+        <a href="index.html" class="active">Dashboard</a>
+        <a href="users.html">Users</a>
+        <a href="templates.html">Templates</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="logs.html">Audit Log</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title">Seller Dashboard</h1>
+        <button class="btn btn-outline btn-sm" onclick="handleSignOut()">Sign Out</button>
+      </header>
+      <div class="admin-content">
+        <div class="stats-row" id="stats-row">
+          <div class="stat-card"><div class="stat-value" id="stat-users">—</div><div class="stat-label">Total Users</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-templates">—</div><div class="stat-label">Total Templates</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-purchases">—</div><div class="stat-label">Total Purchases</div></div>
+          <div class="stat-card"><div class="stat-value" id="stat-revenue">—</div><div class="stat-label">Total Revenue ($)</div></div>
+        </div>
+        <div class="glass" style="padding:1.5rem 0;overflow:hidden;margin-top:2rem;">
+          <div style="padding:0 1.5rem 1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+            <h2 class="font-display" style="font-size:1rem;font-weight:700;">Recent Activity</h2>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Time</th><th>Action</th><th>Target</th><th>Admin</th></tr></thead>
+            <tbody id="activity-body"><tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-secondary);">Loading...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="quick-actions" style="margin-top:2rem;">
+          <a href="templates.html" class="btn btn-accent">Add Template</a>
+          <a href="analytics.html" class="btn btn-outline">View Analytics</a>
+          <a href="users.html" class="btn btn-outline">Users</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/supabase.js"></script>
+  <script src="../js/services/validation.js"></script>
+  <script src="../js/services/cache.js"></script>
+  <script src="../js/services/auth.js"></script>
+  <script src="../js/services/notifications.js"></script>
+  <script src="../js/services/storage.js"></script>
+  <script src="../js/services/templates.js"></script>
+  <script src="../js/services/purchases.js"></script>
+  <script src="../js/services/analytics.js"></script>
+  <script src="../js/services/admin.js"></script>
+  <script>
+    async function handleSignOut() {
+      if ('sbAuth' in window) await sbAuth.signOut();
+      else await sbSignOut();
+      window.location.href = '../dashboard.html';
+    }
+
+    async function loadStats() {
+      try {
+        const stats = await sbAdmin.getStats();
+        document.getElementById('stat-users').textContent = stats.total_users ?? '—';
+        document.getElementById('stat-templates').textContent = stats.total_templates ?? '—';
+        document.getElementById('stat-purchases').textContent = stats.total_purchases ?? '—';
+        document.getElementById('stat-revenue').textContent = stats.total_revenue != null ? '$' + Number(stats.total_revenue).toFixed(2) : '—';
+      } catch (err) {
+        sbLog.error('Failed to load stats', err);
+      }
+    }
+
+    async function loadActivity() {
+      const tbody = document.getElementById('activity-body');
+      try {
+        const logs = await sbAdmin.getAuditLogs();
+        if (!logs || !logs.length) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-secondary);">No activity yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = logs.slice(0, 10).map(log => {
+          const time = new Date(log.created_at).toLocaleString();
+          return '<tr><td style="font-family:var(--font-display);font-size:0.7rem;">' + time + '</td><td>' + log.action + '</td><td class="cell-mono">' + (log.entity_type || '—') + ' ' + (log.entity_id || '') + '</td><td class="cell-mono">' + (log.actor_id ? log.actor_id.slice(0, 8) + '...' : '—') + '</td></tr>';
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--error);">Failed to load activity.</td></tr>';
+      }
+    }
+
+    async function init() {
+      const user = await sbGetUser();
+      if (!user) { window.location.href = '../dashboard.html'; return; }
+      if ('sbAuth' in window) await sbAuth.requireRole('admin').catch(() => {});
+      loadStats();
+      loadActivity();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

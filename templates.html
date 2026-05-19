@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Templates — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
+    <nav class="nav-links">
+      <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
+      <a href="faq.html">FAQ</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <section class="container">
+    <div class="page-header">
+      <h1 class="page-title">All Templates</h1>
+      <p class="page-subtitle" id="result-count">Loading...</p>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <input class="search-bar" id="search-input" placeholder="Search templates..." style="max-width:none;flex:1;min-width:200px;">
+      <div class="filter-bar" id="category-filters">
+        <span class="filter-chip active" data-cat="all">All</span>
+        <span class="filter-chip" data-cat="saas">SaaS</span>
+        <span class="filter-chip" data-cat="portfolio">Portfolio</span>
+        <span class="filter-chip" data-cat="dashboard">Dashboard</span>
+        <span class="filter-chip" data-cat="blog">Blog</span>
+        <span class="filter-chip" data-cat="ecommerce">E-commerce</span>
+        <span class="filter-chip" data-cat="startup">Startup</span>
+        <span class="filter-chip" data-cat="marketing">Marketing</span>
+      </div>
+      <select id="sort-select" class="form-input" style="width:auto;flex-shrink:0;max-width:200px;">
+        <option value="newest">Newest</option>
+        <option value="price-asc">Price: Low-High</option>
+        <option value="price-desc">Price: High-Low</option>
+        <option value="popular">Most Popular</option>
+        <option value="rating">Top Rated</option>
+      </select>
+    </div>
+
+    <div id="product-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
+      <div class="skeleton" style="height:320px;"></div>
+      <div class="skeleton" style="height:320px;"></div>
+      <div class="skeleton" style="height:320px;"></div>
+      <div class="skeleton" style="height:320px;"></div>
+    </div>
+
+    <div class="pagination" id="pagination">
+      <button class="page-btn" id="prev-btn" disabled>&lsaquo;</button>
+      <span id="page-info" style="font-family:var(--font-display);font-size:0.8rem;color:var(--text-secondary);padding:0 0.75rem;">Page 1</span>
+      <button class="page-btn" id="next-btn" disabled>&rsaquo;</button>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>Pay with ETH to: <span class="font-mono" style="color:var(--text)">0xbe9Db9c86B79617231a4861fb54ef278447D43fb</span></p>
+    <p style="margin-top:0.5rem">&copy; 2026 Weave</p>
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/storage.js"></script>
+  <script src="js/services/templates.js"></script>
+  <script src="js/services/purchases.js"></script>
+  <script>
+    const PER_PAGE = 12;
+    let allTemplates = [];
+    let activeCategory = 'all';
+    let searchQuery = '';
+    let sortBy = 'newest';
+    let currentPage = 1;
+
+    function sortTemplates(list) {
+      const sorted = [...list];
+      switch (sortBy) {
+        case 'newest': return sorted;
+        case 'price-asc': return sorted.sort((a, b) => (a.price_usd || 0) - (b.price_usd || 0));
+        case 'price-desc': return sorted.sort((a, b) => (b.price_usd || 0) - (a.price_usd || 0));
+        case 'popular': return sorted.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
+        case 'rating': return sorted.sort((a, b) => (b.rating_avg || 0) - (a.rating_avg || 0));
+        default: return sorted;
+      }
+    }
+
+    function filterAndPaginate() {
+      let filtered = [...allTemplates];
+      if (activeCategory !== 'all') {
+        filtered = filtered.filter(t => t.category_slug === activeCategory);
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        filtered = filtered.filter(t =>
+          (t.name || '').toLowerCase().includes(q) ||
+          (t.description || '').toLowerCase().includes(q)
+        );
+      }
+      filtered = sortTemplates(filtered);
+      const total = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+      if (currentPage > totalPages) currentPage = totalPages;
+      const start = (currentPage - 1) * PER_PAGE;
+      const page = filtered.slice(start, start + PER_PAGE);
+      return { page, total, totalPages };
+    }
+
+    function renderGrid(templates) {
+      const grid = document.getElementById('product-grid');
+      if (!templates.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">&#x1F50D;</div><div class="empty-state-text">No templates match your criteria. Try a different category or search term.</div></div>';
+        return;
+      }
+      grid.innerHTML = templates.map(t => `
+        <a href="template.html?slug=${t.slug}" class="card">
+          <div class="card-preview">${t.preview_url ? `<img src="${t.preview_url}" alt="${t.name}">` : 'PREVIEW'}</div>
+          <div class="card-body">
+            <div class="card-title">${t.name}</div>
+            <div class="card-desc">${(t.description || '').substring(0, 100)}</div>
+            <div class="card-price">$${t.price_usd} <span>~${t.price_eth} ETH</span></div>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    function render() {
+      const { page, total, totalPages } = filterAndPaginate();
+      renderGrid(page);
+      document.getElementById('result-count').textContent = `${total} template${total === 1 ? '' : 's'} available`;
+      document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`;
+      document.getElementById('prev-btn').disabled = currentPage <= 1;
+      document.getElementById('next-btn').disabled = currentPage >= totalPages;
+    }
+
+    async function loadTemplates() {
+      const grid = document.getElementById('product-grid');
+      try {
+        allTemplates = await sbTemplates.list({ limit: 100 });
+        render();
+        sbLog.ok(`Loaded ${allTemplates.length} templates`);
+      } catch (err) {
+        sbLog.error('Failed to load templates', err);
+        grid.innerHTML = '<div style="text-align:center;padding:3rem 0;color:var(--text-secondary);grid-column:1/-1;">Failed to load templates. <button onclick="location.reload()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:0.5rem 1rem;cursor:pointer;margin-top:0.5rem;color:var(--text);">Retry</button></div>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadTemplates();
+
+      document.getElementById('category-filters').addEventListener('click', function(e) {
+        const chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeCategory = chip.dataset.cat;
+        currentPage = 1;
+        render();
+      });
+
+      document.getElementById('search-input').addEventListener('input', function(e) {
+        searchQuery = e.target.value;
+        currentPage = 1;
+        render();
+      });
+
+      document.getElementById('sort-select').addEventListener('change', function(e) {
+        sortBy = e.target.value;
+        currentPage = 1;
+        render();
+      });
+
+      document.getElementById('prev-btn').addEventListener('click', function() {
+        if (currentPage > 1) { currentPage--; render(); }
+      });
+
+      document.getElementById('next-btn').addEventListener('click', function() {
+        const { totalPages } = filterAndPaginate();
+        if (currentPage < totalPages) { currentPage++; render(); }
+      });
+    });
+  </script>
+</body>
+</html>

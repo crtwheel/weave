@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Settings — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand"><span class="logo-icon">W</span> Weave</div>
+      <nav class="sidebar-nav">
+        <a href="index.html">Dashboard</a>
+        <a href="users.html">Users</a>
+        <a href="templates.html">Templates</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="logs.html">Audit Log</a>
+        <a href="settings.html" class="active">Settings</a>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title">System Settings</h1>
+        <button class="btn btn-outline btn-sm" onclick="handleSignOut()">Sign Out</button>
+      </header>
+      <div class="admin-content">
+        <div class="settings-section glass">
+          <h2 class="settings-section-title">Feature Flags</h2>
+          <div id="feature-flags"><p style="color:var(--text-secondary);font-size:0.85rem;">Loading...</p></div>
+        </div>
+
+        <div class="settings-section glass" style="margin-top:1.5rem;">
+          <h2 class="settings-section-title">Announcements</h2>
+          <form onsubmit="createAnnouncement(event)" style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);">
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input class="form-input" id="ann-title" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Content</label>
+              <textarea class="form-input" id="ann-content" rows="3" required></textarea>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <div class="form-group">
+                <label class="form-label">Type</label>
+                <select class="form-input" id="ann-type">
+                  <option value="info">Info</option>
+                  <option value="warning">Warning</option>
+                  <option value="success">Success</option>
+                  <option value="error">Error</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Expires At</label>
+                <input class="form-input" id="ann-expires" type="datetime-local">
+              </div>
+            </div>
+            <button class="btn btn-accent" type="submit">Create Announcement</button>
+          </form>
+          <div id="announcements-list"></div>
+        </div>
+
+        <div class="settings-section glass danger-zone" style="margin-top:1.5rem;">
+          <h2 class="settings-section-title">Danger Zone</h2>
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div><strong>Clear All Logs</strong><br><span style="font-size:0.8rem;color:var(--text-secondary);">Remove all audit log entries</span></div>
+              <button class="btn btn-outline btn-sm" disabled title="Coming soon" style="opacity:0.5;cursor:not-allowed;">Clear Logs</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div><strong>Supabase URL</strong><br><span style="font-size:0.8rem;color:var(--text-secondary);" id="config-supabase">Loading...</span></div>
+              <div><strong>Wallet Address</strong><br><span style="font-size:0.8rem;font-family:var(--font-display);color:var(--text-secondary);" id="config-wallet">Loading...</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    .settings-section { padding:1.5rem; }
+    .settings-section-title { font-family:var(--font-display); font-size:0.85rem; font-weight:700; margin-bottom:1rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-secondary); }
+    .flag-row { display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid var(--border); }
+    .flag-row:last-child { border-bottom:none; }
+    .flag-info { flex:1; }
+    .flag-info strong { font-size:0.9rem; }
+    .flag-info p { font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem; }
+    .toggle { position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0; }
+    .toggle input { opacity:0; width:0; height:0; }
+    .toggle-slider { position:absolute; cursor:pointer; inset:0; background:var(--bg-alt); border:1px solid var(--border); border-radius:24px; transition:all 0.3s; }
+    .toggle-slider::before { content:''; position:absolute; height:18px; width:18px; left:2px; bottom:2px; background:var(--text-tertiary); border-radius:50%; transition:all 0.3s; }
+    .toggle input:checked + .toggle-slider { background:var(--accent); border-color:var(--accent); }
+    .toggle input:checked + .toggle-slider::before { transform:translateX(20px); background:#fff; }
+    .danger-zone { border:1px solid rgba(239,68,68,0.15); background:rgba(239,68,68,0.03); }
+    .ann-item { display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid var(--border); }
+    .ann-item:last-child { border-bottom:none; }
+    .ann-item .ann-info { flex:1; }
+    .ann-item .ann-info strong { font-size:0.9rem; }
+    .ann-item .ann-info .ann-meta { font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem; }
+  </style>
+
+  <script src="../js/supabase.js"></script>
+  <script src="../js/services/validation.js"></script>
+  <script src="../js/services/cache.js"></script>
+  <script src="../js/services/auth.js"></script>
+  <script src="../js/services/notifications.js"></script>
+  <script src="../js/services/storage.js"></script>
+  <script src="../js/services/templates.js"></script>
+  <script src="../js/services/purchases.js"></script>
+  <script src="../js/services/analytics.js"></script>
+  <script src="../js/services/admin.js"></script>
+  <script>
+    async function handleSignOut() {
+      if ('sbAuth' in window) await sbAuth.signOut();
+      else await sbSignOut();
+      window.location.href = '../dashboard.html';
+    }
+
+    async function loadFeatureFlags() {
+      const container = document.getElementById('feature-flags');
+      try {
+        const flags = await sbAdmin.getFeatureFlags();
+        if (!flags || !flags.length) {
+          container.innerHTML = '<p style="color:var(--text-secondary);font-size:0.85rem;">No feature flags configured.</p>';
+          return;
+        }
+        container.innerHTML = flags.map(f => {
+          const desc = f.description ? '<p>' + f.description + '</p>' : '';
+          return '<div class="flag-row">' +
+            '<div class="flag-info"><strong>' + f.key + '</strong>' + desc + '</div>' +
+            '<label class="toggle">' +
+              '<input type="checkbox" ' + (f.enabled ? 'checked' : '') + ' onchange="toggleFlag(\'' + f.key + '\', this.checked)">' +
+              '<span class="toggle-slider"></span>' +
+            '</label>' +
+          '</div>';
+        }).join('');
+      } catch (err) {
+        container.innerHTML = '<p style="color:var(--error);font-size:0.85rem;">Failed to load flags: ' + err.message + '</p>';
+      }
+    }
+
+    async function toggleFlag(key, enabled) {
+      try {
+        await sbAdmin.setFeatureFlag(key, enabled);
+        if ('sbNotify' in window) sbNotify.success(key + ' set to ' + enabled);
+      } catch (err) {
+        if ('sbNotify' in window) sbNotify.error('Failed: ' + err.message);
+        loadFeatureFlags();
+      }
+    }
+
+    async function createAnnouncement(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = '...';
+      const data = {
+        title: document.getElementById('ann-title').value,
+        body: document.getElementById('ann-content').value,
+        severity: document.getElementById('ann-type').value,
+        expires_at: document.getElementById('ann-expires').value || null
+      };
+      try {
+        await sbAdmin.createAnnouncement(data);
+        if ('sbNotify' in window) sbNotify.success('Announcement created');
+        e.target.reset();
+        loadAnnouncements();
+      } catch (err) {
+        if ('sbNotify' in window) sbNotify.error('Failed: ' + err.message);
+      }
+      btn.disabled = false;
+      btn.textContent = 'Create Announcement';
+    }
+
+    async function loadAnnouncements() {
+      const container = document.getElementById('announcements-list');
+      try {
+        const anns = await sbAdmin.getAnnouncements();
+        if (!anns || !anns.length) {
+          container.innerHTML = '<p style="color:var(--text-secondary);font-size:0.85rem;">No announcements.</p>';
+          return;
+        }
+        container.innerHTML = anns.map(a => {
+          const typeBadge = 'badge badge-' + (a.severity === 'error' ? 'rejected' : a.severity === 'warning' ? 'pending' : a.severity === 'success' ? 'verified' : 'info');
+          return '<div class="ann-item">' +
+            '<div class="ann-info"><strong>' + a.title + '</strong><div class="ann-meta"><span class="' + typeBadge + '">' + (a.severity || 'info') + '</span> &middot; ' + new Date(a.created_at).toLocaleDateString() + '</div></div>' +
+            '<button class="btn btn-outline btn-sm" onclick="deleteAnnouncement(' + a.id + ')" style="color:var(--error);">Delete</button>' +
+          '</div>';
+        }).join('');
+      } catch (err) {
+        container.innerHTML = '<p style="color:var(--error);font-size:0.85rem;">Failed to load announcements: ' + err.message + '</p>';
+      }
+    }
+
+    async function deleteAnnouncement(id) {
+      if (!confirm('Delete this announcement?')) return;
+      try {
+        await sbAdmin.deleteAnnouncement(id);
+        if ('sbNotify' in window) sbNotify.success('Announcement deleted');
+        loadAnnouncements();
+      } catch (err) {
+        if ('sbNotify' in window) sbNotify.error('Failed: ' + err.message);
+      }
+    }
+
+    function loadConfigInfo() {
+      const url = typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : '';
+      const masked = url.length > 20 ? url.slice(0, 10) + '...' + url.slice(-10) : url;
+      document.getElementById('config-supabase').textContent = masked || '—';
+      document.getElementById('config-wallet').textContent = typeof WALLET_ADDRESS !== 'undefined' ? WALLET_ADDRESS : '—';
+    }
+
+    async function init() {
+      const user = await sbGetUser();
+      if (!user) { window.location.href = '../dashboard.html'; return; }
+      if ('sbAuth' in window) await sbAuth.requireRole('admin').catch(() => {});
+      loadFeatureFlags();
+      loadAnnouncements();
+      loadConfigInfo();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
