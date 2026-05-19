@@ -1,14 +1,13 @@
-/**
- * Toast notification container element.
- * @type {HTMLElement}
- */
-const _toastContainer = (() => {
-  const el = document.createElement('div');
-  el.className = 'toast-container';
-  el.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
-  document.body.appendChild(el);
-  return el;
-})();
+let _toastContainer = null;
+function _getToastContainer() {
+  if (!_toastContainer) {
+    _toastContainer = document.createElement('div');
+    _toastContainer.className = 'toast-container';
+    _toastContainer.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
+    document.body.appendChild(_toastContainer);
+  }
+  return _toastContainer;
+}
 
 /**
  * Toast and confirmation dialog notification service.
@@ -26,7 +25,7 @@ const sbNotify = {
     toast.className = `toast toast-${type}`;
     toast.textContent = msg;
     toast.style.cssText = 'transform:translateY(-20px);opacity:0;transition:all 0.3s ease;pointer-events:auto;padding:12px 20px;border-radius:8px;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:380px;word-break:break-word;';
-    _toastContainer.appendChild(toast);
+    _getToastContainer().appendChild(toast);
     requestAnimationFrame(() => {
       toast.style.transform = 'translateY(0)';
       toast.style.opacity = '1';

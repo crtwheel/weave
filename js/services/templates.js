@@ -118,8 +118,15 @@ const sbTemplates = {
       sbCache.set('templates_popular', data, 60000);
       return data;
     } catch (err) {
-      sbLog.error('Templates: popular failed', err);
-      throw err;
+      sbLog.warn('Templates: popular column missing, falling back to list', err);
+      try {
+        const data = await sbSelect('templates', { limit: 6, order: 'created_at' });
+        sbCache.set('templates_popular', data, 60000);
+        return data;
+      } catch (fallbackErr) {
+        sbLog.error('Templates: fallback list failed', fallbackErr);
+        throw fallbackErr;
+      }
     }
   },
 
@@ -131,12 +138,12 @@ const sbTemplates = {
     try {
       const user = await sbGetUser();
       if (!user) return [];
-      const favs = await sbSelect('favorites', { eq: ['user_id', user.id] });
-      if (!favs.length) return [];
+      const favs = await sbSelect('favorites', { eq: ['user_id', user.id] }).catch(() => []);
+      if (!favs || !favs.length) return [];
       const ids = favs.map(f => f.template_id);
       return await sbSelect('templates', { in: ['id', ids] });
     } catch (err) {
-      sbLog.error('Templates: get favorites failed', err);
+      sbLog.warn('Templates: get favorites failed (table may not exist yet)', err);
       return [];
     }
   },

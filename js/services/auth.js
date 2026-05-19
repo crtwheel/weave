@@ -134,7 +134,7 @@ const sbAuth = {
     try {
       const user = await sbGetUser();
       if (!user) throw new Error('Not authenticated');
-      const result = await sbUpdate('profiles', user.id, { ...data, updated_at: new Date().toISOString() });
+      const result = await sbUpdate('profiles', user.id, data);
       sbLog.ok('Auth: profile updated');
       return result;
     } catch (err) {
@@ -147,6 +147,24 @@ const sbAuth = {
    * Check if the current user has been banned.
    * @returns {Promise<boolean>} True if the user's profile has a banned_at timestamp.
    */
+  /**
+   * Send a password reset email via Supabase Auth.
+   * @param {string} email - The email address to send the reset link to.
+   * @returns {Promise<void>}
+   */
+  resetPassword: async (email) => {
+    const valid = sbValidate.email(email);
+    if (valid !== true) throw new Error(valid);
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.msg || data.error || 'Password reset request failed');
+    sbLog.ok('Auth: password reset email sent', email);
+  },
+
   isBanned: async () => {
     try {
       const user = await sbGetUser();

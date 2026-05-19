@@ -85,14 +85,14 @@ const sbPurchases = {
         template_id: templateId,
         user_id: user?.id || null,
         downloaded_at: new Date().toISOString()
-      });
+      }).catch(() => {});
       const template = await sbSelect('templates', { eq: ['id', templateId], single: true });
       if (template) {
         await sbUpdate('templates', templateId, { downloads: (template.downloads || 0) + 1 });
       }
       sbLog.ok('Purchases: download tracked', templateId);
     } catch (err) {
-      sbLog.error('Purchases: track download failed', err);
+      sbLog.warn('Purchases: track download failed (table may not exist)', err);
     }
   },
 

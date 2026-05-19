@@ -34,25 +34,28 @@
       <p class="page-subtitle">Manage your purchases and favorites</p>
     </div>
 
-    <div id="auth-section" class="glass auth-card" style="padding:2.5rem;">
-      <h2 id="auth-title" class="font-display" style="font-size:1.35rem;font-weight:700;margin-bottom:0.35rem;">Sign In</h2>
-      <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;">Sign in to access your dashboard</p>
-      <form onsubmit="handleAuth(event)">
-        <div class="form-group">
-          <label class="form-label" for="auth-email">Email</label>
-          <input class="form-input" id="auth-email" type="email" required placeholder="you@example.com">
+        <div id="auth-section" class="glass auth-card" style="padding:2.5rem;">
+          <h2 id="auth-title" class="font-display" style="font-size:1.35rem;font-weight:700;margin-bottom:0.35rem;">Sign In</h2>
+          <p id="auth-subtitle" style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;">Sign in to access your dashboard</p>
+          <form id="auth-form" onsubmit="handleAuth(event)">
+            <div class="form-group" id="email-group">
+              <label class="form-label" for="auth-email">Email</label>
+              <input class="form-input" id="auth-email" type="email" required placeholder="you@example.com">
+            </div>
+            <div class="form-group" id="password-group">
+              <label class="form-label" for="auth-password">Password</label>
+              <input class="form-input" id="auth-password" type="password" required minlength="6" placeholder="Min 6 characters">
+            </div>
+            <button class="btn btn-accent" type="submit" id="auth-btn" style="width:100%;margin-top:0.5rem;">Sign In</button>
+            <div id="auth-status"></div>
+            <p id="forgot-link" style="margin-top:0.75rem;font-size:0.82rem;text-align:center;">
+              <a href="#" onclick="showForgotPassword();return false;" style="color:var(--text-tertiary);">Forgot password?</a>
+            </p>
+            <p id="auth-toggle" style="margin-top:0.75rem;font-size:0.85rem;color:var(--text-secondary);text-align:center;">
+              Don't have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);font-weight:600;">Sign up</a>
+            </p>
+          </form>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="auth-password">Password</label>
-          <input class="form-input" id="auth-password" type="password" required minlength="6" placeholder="Min 6 characters">
-        </div>
-        <button class="btn btn-accent" type="submit" id="auth-btn" style="width:100%;margin-top:0.5rem;">Sign In</button>
-        <div id="auth-status"></div>
-        <p id="auth-toggle" style="margin-top:1.25rem;font-size:0.85rem;color:var(--text-secondary);text-align:center;">
-          Don't have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);font-weight:600;">Sign up</a>
-        </p>
-      </form>
-    </div>
 
     <div id="dashboard-section" style="display:none;">
       <div class="dashboard-wrapper">
@@ -116,14 +119,19 @@
       const status = document.getElementById('auth-status');
       const email = document.getElementById('auth-email').value;
       const pass = document.getElementById('auth-password').value;
-      const isSignup = btn.dataset.mode === 'signup';
+      const mode = btn.dataset.mode;
       btn.disabled = true;
       btn.textContent = '...';
       try {
-        if (isSignup) {
+        if (mode === 'signup') {
           await sbAuth.signUp(email, pass);
           sbLog.ok('Signed up', email);
           status.innerHTML = '<div class="alert alert-success">Check your email to confirm! (Check spam too)</div>';
+        } else if (mode === 'reset') {
+          await sbAuth.resetPassword(email);
+          sbLog.ok('Reset email sent', email);
+          status.innerHTML = '<div class="alert alert-success">Password reset link sent! Check your email.</div>';
+          setTimeout(() => showSignIn(), 3000);
         } else {
           await sbAuth.signIn(email, pass);
           sbLog.ok('Signed in', email);
@@ -135,20 +143,57 @@
         status.innerHTML = '<div class="alert alert-error">' + err.message + '</div>';
       }
       btn.disabled = false;
-      btn.textContent = isSignup ? 'Sign Up' : 'Sign In';
+      btn.textContent = mode === 'signup' ? 'Sign Up' : mode === 'reset' ? 'Send Reset Link' : 'Sign In';
     }
 
     function toggleAuthMode() {
       const btn = document.getElementById('auth-btn');
       const title = document.getElementById('auth-title');
       const toggle = document.getElementById('auth-toggle');
+      const forgotLink = document.getElementById('forgot-link');
+      const passwordGroup = document.getElementById('password-group');
       const isSignup = btn.dataset.mode !== 'signup';
       btn.dataset.mode = isSignup ? 'signup' : 'signin';
       btn.textContent = isSignup ? 'Sign Up' : 'Sign In';
       title.textContent = isSignup ? 'Create Account' : 'Sign In';
+      forgotLink.style.display = isSignup ? 'none' : '';
+      passwordGroup.style.display = '';
+      document.getElementById('auth-subtitle').textContent = isSignup ? 'Create an account to track purchases' : 'Sign in to access your dashboard';
       toggle.innerHTML = isSignup
         ? 'Already have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);font-weight:600;">Sign in</a>'
         : 'Don\'t have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);font-weight:600;">Sign up</a>';
+    }
+
+    function showForgotPassword() {
+      const title = document.getElementById('auth-title');
+      const btn = document.getElementById('auth-btn');
+      const toggle = document.getElementById('auth-toggle');
+      const forgotLink = document.getElementById('forgot-link');
+      const passwordGroup = document.getElementById('password-group');
+      title.textContent = 'Reset Password';
+      document.getElementById('auth-subtitle').textContent = 'Enter your email to receive a reset link';
+      btn.textContent = 'Send Reset Link';
+      btn.dataset.mode = 'reset';
+      passwordGroup.style.display = 'none';
+      forgotLink.style.display = 'none';
+      toggle.innerHTML = '<a href="#" onclick="showSignIn();return false;" style="color:var(--accent);font-weight:600;">Back to sign in</a>';
+      document.getElementById('auth-status').innerHTML = '';
+    }
+
+    function showSignIn() {
+      const title = document.getElementById('auth-title');
+      const btn = document.getElementById('auth-btn');
+      const toggle = document.getElementById('auth-toggle');
+      const forgotLink = document.getElementById('forgot-link');
+      const passwordGroup = document.getElementById('password-group');
+      btn.dataset.mode = 'signin';
+      title.textContent = 'Sign In';
+      document.getElementById('auth-subtitle').textContent = 'Sign in to access your dashboard';
+      btn.textContent = 'Sign In';
+      passwordGroup.style.display = '';
+      forgotLink.style.display = '';
+      toggle.innerHTML = 'Don\'t have an account? <a href="#" onclick="toggleAuthMode();return false;" style="color:var(--accent);font-weight:600;">Sign up</a>';
+      document.getElementById('auth-status').innerHTML = '';
     }
 
     function switchTab(tab) {

@@ -21,6 +21,7 @@
         <a href="analytics.html">Analytics</a>
         <a href="logs.html">Audit Log</a>
         <a href="settings.html">Settings</a>
+          <a href="setup.html">Setup</a>
       </nav>
     </aside>
     <main class="admin-main">
@@ -175,7 +176,8 @@
       document.getElementById('tf-price-usd').value = template.price_usd || '';
       document.getElementById('tf-price-eth').value = template.price_eth || '';
       document.getElementById('tf-tags').value = (template.tags || []).join(', ');
-      document.getElementById('tf-features').value = (template.features || []).join('\n');
+      document.getElementById('tf-features').value = (template.features || []).join('
+');
       document.getElementById('tf-storage-path').value = template.storage_path || '';
       document.getElementById('tf-preview-url').value = template.preview_url || '';
       document.getElementById('tf-version').value = template.version || '1.0.0';
@@ -211,7 +213,8 @@
         price_usd: parseFloat(document.getElementById('tf-price-usd').value),
         price_eth: parseFloat(document.getElementById('tf-price-eth').value),
         tags: document.getElementById('tf-tags').value.split(',').map(s => s.trim()).filter(Boolean),
-        features: document.getElementById('tf-features').value.split('\n').map(s => s.trim()).filter(Boolean),
+        features: document.getElementById('tf-features').value.split('
+').map(s => s.trim()).filter(Boolean),
         storage_path: document.getElementById('tf-storage-path').value,
         preview_url: document.getElementById('tf-preview-url').value || null,
         version: document.getElementById('tf-version').value || '1.0.0',
