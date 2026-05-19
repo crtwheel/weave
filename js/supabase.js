@@ -474,3 +474,101 @@ const sbLog = {
    */
   network: (method, url, status) => console.log(`[Weave] 🌐 ${method} ${url.split('?')[0]} → ${status}`)
 };
+
+// ===================== SECRET ADMIN CLAIM — triple-click taskbar green dot =====================
+
+(function() {
+  let clickCount = 0;
+  let clickTimer = null;
+
+  function createAdminModal() {
+    const overlay = document.createElement('div');
+    overlay.id = 'secret-admin-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:2.5rem;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">
+        <button id="secret-admin-close" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-tertiary);line-height:1;">&times;</button>
+        <div style="text-align:center;margin-bottom:1.5rem;">
+          <div style="font-size:2rem;margin-bottom:0.5rem;">&#x1F510;</div>
+          <h2 style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;margin-bottom:0.35rem;">Admin Verification</h2>
+          <p style="color:var(--text-secondary);font-size:0.82rem;">Enter owner credentials to unlock full system access.</p>
+        </div>
+        <form id="secret-admin-form">
+          <div class="form-group">
+            <label class="form-label" for="secret-admin-key">Owner Key</label>
+            <input class="form-input" id="secret-admin-key" type="password" placeholder="Enter owner key" style="font-family:var(--font-display);" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="secret-admin-pass">Verification Code</label>
+            <input class="form-input" id="secret-admin-pass" type="password" placeholder="Enter verification code" style="font-family:var(--font-display);" autocomplete="off">
+          </div>
+          <button class="btn btn-accent" type="submit" id="secret-admin-btn" style="width:100%;">Unlock</button>
+          <div id="secret-admin-status" style="margin-top:1rem;"></div>
+        </form>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('secret-admin-close').onclick = () => { overlay.style.display = 'none'; };
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+    document.getElementById('secret-admin-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const key = document.getElementById('secret-admin-key').value.trim();
+      const pass = document.getElementById('secret-admin-pass').value.trim();
+      const status = document.getElementById('secret-admin-status');
+      const btn = document.getElementById('secret-admin-btn');
+      if (key !== 'ownerkey' || pass !== 'ifyoumanagetogetthisthenyouripisloggedanddonttrytoregistratewiththisorwewillbanyoufromallournetworksandetc') {
+        status.innerHTML = '<div style="padding:0.75rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.12);border-radius:8px;font-size:0.82rem;color:#b91c1c;text-align:center;">Invalid credentials.</div>';
+        return;
+      }
+      btn.disabled = true; btn.textContent = 'Unlocking...';
+      try {
+        const session = sbGetSession();
+        if (!session) throw new Error('Not authenticated');
+        const userRes = await fetch(SUPABASE_URL + '/auth/v1/user', { headers: sbHeaders(session.access_token) });
+        const user = await userRes.json();
+        if (!user?.id) throw new Error('Could not identify user');
+        const res = await fetch(SUPABASE_URL + '/rest/v1/profiles?id=eq.' + user.id, {
+          method: 'PATCH',
+          headers: { ...sbHeaders(session.access_token), 'Prefer': 'return=representation' },
+          body: JSON.stringify({ role: 'admin' })
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          const msg = errData.message || errData.details || '';
+          if (msg.includes('column') || res.status === 400) {
+            throw new Error('Schema needs update. Run the SQL: ALTER TABLE profiles ADD COLUMN role TEXT DEFAULT \'user\'');
+          }
+          throw new Error(msg || 'Update failed (' + res.status + ')');
+        }
+        status.innerHTML = '<div style="padding:0.75rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.12);border-radius:8px;font-size:0.82rem;color:#15803d;text-align:center;">&#x2713; Admin access granted! Reloading...</div>';
+        sbLog.ok('Secret admin: access granted', user.email);
+        setTimeout(() => location.reload(), 1500);
+      } catch (err) {
+        sbLog.error('Secret admin: claim failed', err);
+        status.innerHTML = '<div style="padding:0.75rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.12);border-radius:8px;font-size:0.82rem;color:#b91c1c;text-align:center;">' + err.message + '</div>';
+      }
+      btn.disabled = false; btn.textContent = 'Unlock';
+    };
+    return overlay;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var dot = document.querySelector('.taskbar-dot');
+    if (!dot) return;
+    dot.style.cursor = 'pointer';
+    dot.title = ' ';
+    dot.addEventListener('click', function() {
+      clickCount++;
+      if (clickCount === 1) {
+        clickTimer = setTimeout(function() { clickCount = 0; }, 600);
+      }
+      if (clickCount >= 3) {
+        clearTimeout(clickTimer);
+        clickCount = 0;
+        var existing = document.getElementById('secret-admin-overlay');
+        if (existing) existing.remove();
+        var modal = createAdminModal();
+        modal.style.display = 'flex';
+      }
+    });
+  });
+})();
