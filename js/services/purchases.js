@@ -81,11 +81,13 @@ const sbPurchases = {
   trackDownload: async (templateId) => {
     try {
       const user = await sbGetUser();
-      await sbInsert('download_logs', {
-        template_id: templateId,
-        user_id: user?.id || null,
-        downloaded_at: new Date().toISOString()
-      }).catch(() => {});
+      if (user?.id) {
+        await sbInsert('download_logs', {
+          template_id: templateId,
+          user_id: user.id,
+          created_at: new Date().toISOString()
+        }).catch(() => {});
+      }
       const template = await sbSelect('templates', { eq: ['id', templateId], single: true });
       if (template) {
         await sbUpdate('templates', templateId, { downloads: (template.downloads || 0) + 1 });

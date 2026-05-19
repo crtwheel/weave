@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/community.css">
 </head>
 <body>
     <div class="taskbar">
@@ -48,6 +49,8 @@
     </div>
   </section>
 
+  <div id="banner-ad" class="container" style="margin-top:2rem;margin-bottom:0;"></div>
+
   <section id="products" class="section">
     <div class="container">
       <div class="section-header">
@@ -59,7 +62,7 @@
           <span class="filter-chip active" data-cat="all">All</span>
           <span class="filter-chip" data-cat="saas">SaaS</span>
           <span class="filter-chip" data-cat="portfolio">Portfolio</span>
-          <span class="filter-chip" data-cat="dashboard">Dashboard</span>
+          <span class="filter-chip" data-cat="dashboards">Dashboard</span>
           <span class="filter-chip" data-cat="blog">Blog</span>
           <span class="filter-chip" data-cat="ecommerce">E-commerce</span>
           <span class="filter-chip" data-cat="startup">Startup</span>
@@ -115,6 +118,7 @@
   <script src="js/services/storage.js"></script>
   <script src="js/services/templates.js"></script>
   <script src="js/services/purchases.js"></script>
+  <script src="js/services/ads.js"></script>
   <script>
     let allTemplates = [];
     let activeCategory = 'all';
@@ -165,8 +169,22 @@
       }
     }
 
+    async function loadAds() {
+      const ads = await sbAds.list('banner');
+      if (!ads?.length) return;
+      const container = document.getElementById('banner-ad');
+      if (!container) return;
+      const ad = ads[0];
+      container.innerHTML = `<a href="${ad.link_url}" target="_blank" rel="sponsored" onclick="sbAds.trackClick(${ad.id})" style="display:block;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);background:var(--bg-alt);">
+        <div style="padding:0.5rem 1rem;font-size:0.6rem;font-family:var(--font-display);color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid var(--border);">Sponsored</div>
+        <img src="${ad.image_url}" alt="${ad.name}" style="width:100%;display:block;max-height:120px;object-fit:cover;">
+      </a>`;
+      sbAds.trackImpression(ad.id);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       loadProducts();
+      loadAds();
 
       document.getElementById('category-filters').addEventListener('click', function(e) {
         const chip = e.target.closest('.filter-chip');

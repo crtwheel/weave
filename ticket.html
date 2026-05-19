@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/comments.js"></script>
+  <script src="js/services/tickets.js"></script>
+  <script src="js/services/businesses.js"></script>
+</head>
+<body>
+  <div class="taskbar">
+    <div class="taskbar-left">
+      <span class="taskbar-dot online"></span>
+      <span>weave</span>
+    </div>
+    <div class="taskbar-right">
+      <span class="taskbar-wallet">0xbe9...D43fb</span>
+      <span class="taskbar-version">v1.0</span>
+    </div>
+  </div>
+  <header class="site-header">
+    <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
+    <nav class="nav-links">
+      <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
+      <a href="faq.html">FAQ</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container" style="padding-top:7rem;padding-bottom:4rem;">
+    <a href="tickets.html" style="display:inline-flex;align-items:center;gap:0.25rem;color:var(--text-secondary);text-decoration:none;font-size:0.85rem;margin-bottom:2rem;transition:color 0.2s;">&larr; Back to Tickets</a>
+
+    <div id="loading-state">
+      <div class="glass" style="padding:2rem;">
+        <div class="skeleton" style="height:1.5rem;width:60%;margin-bottom:1rem;"></div>
+        <div class="skeleton" style="height:1rem;width:40%;margin-bottom:2rem;"></div>
+        <div class="skeleton" style="height:6rem;width:100%;margin-bottom:1rem;"></div>
+        <div class="skeleton" style="height:6rem;width:100%;"></div>
+      </div>
+    </div>
+
+    <div id="error-state" style="display:none;">
+      <div class="page-header" style="text-align:center;">
+        <h1 class="page-title">Ticket Not Found</h1>
+        <p class="page-subtitle" style="margin:0 auto;">This ticket doesn't exist or has been removed.</p>
+        <a href="tickets.html" class="btn btn-outline" style="margin-top:1.5rem;">Back to Tickets</a>
+      </div>
+    </div>
+
+    <div id="ticket-content" style="display:none;">
+      <div class="glass" style="padding:2rem;margin-bottom:2rem;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
+          <div>
+            <h1 class="page-title" id="ticket-subject" style="font-size:1.5rem;margin-bottom:0.35rem;"></h1>
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+              <span id="ticket-status" class="badge"></span>
+              <span id="ticket-priority" class="badge"></span>
+              <span id="ticket-date" style="font-size:0.8rem;color:var(--text-tertiary);"></span>
+            </div>
+          </div>
+          <button id="close-ticket-btn" class="btn btn-outline btn-sm" onclick="closeTicket()" style="display:none;">Close Ticket</button>
+        </div>
+      </div>
+
+      <h2 class="font-display" style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Messages</h2>
+      <div id="messages-container" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:2rem;"></div>
+
+      <div id="reply-section" class="glass" style="padding:1.5rem;">
+        <h3 class="font-display" style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;">Add a Reply</h3>
+        <textarea class="form-input" id="reply-input" placeholder="Type your message..." rows="4" style="resize:vertical;margin-bottom:0.75rem;"></textarea>
+        <button class="btn btn-accent btn-sm" onclick="sendReply()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTicket = null;
+    let currentUserId = null;
+
+    async function init() {
+      const user = await sbGetUser();
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      currentUserId = user.id;
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (!id) {
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('error-state').style.display = 'block';
+        return;
+      }
+      loadTicket(id);
+    }
+
+    async function loadTicket(id) {
+      try {
+        const ticket = await sbTickets.get(id);
+        if (!ticket) {
+          document.getElementById('loading-state').style.display = 'none';
+          document.getElementById('error-state').style.display = 'block';
+          return;
+        }
+        currentTicket = ticket;
+        renderTicket(ticket);
+      } catch (err) {
+        sbLog.error('Failed to load ticket', err);
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('error-state').style.display = 'block';
+      }
+    }
+
+    function renderTicket(ticket) {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('ticket-content').style.display = 'block';
+
+      document.getElementById('ticket-subject').textContent = ticket.subject;
+
+      const statusBadge = document.getElementById('ticket-status');
+      const statusClass = ticket.status === 'open' ? 'badge-pending'
+        : ticket.status === 'resolved' ? 'badge-verified' : 'badge-rejected';
+      statusBadge.className = 'badge ' + statusClass;
+      statusBadge.textContent = ticket.status;
+
+      const priorityBadge = document.getElementById('ticket-priority');
+      if (ticket.priority === 'urgent') {
+        priorityBadge.style.cssText = 'background:rgba(239,68,68,0.1);color:#b91c1c;border:1px solid rgba(239,68,68,0.15);';
+      } else if (ticket.priority === 'high') {
+        priorityBadge.style.cssText = 'background:rgba(249,115,22,0.1);color:#c2410c;border:1px solid rgba(249,115,22,0.15);';
+      } else if (ticket.priority === 'low') {
+        priorityBadge.style.cssText = 'background:rgba(107,114,128,0.1);color:#4b5563;border:1px solid rgba(107,114,128,0.15);';
+      } else {
+        priorityBadge.style.cssText = '';
+      }
+      priorityBadge.textContent = ticket.priority;
+
+      document.getElementById('ticket-date').textContent = 'Created ' + new Date(ticket.created_at).toLocaleDateString();
+
+      if (ticket.status === 'open') {
+        document.getElementById('close-ticket-btn').style.display = 'inline-flex';
+      }
+
+      const container = document.getElementById('messages-container');
+      if (ticket.messages?.length) {
+        container.innerHTML = ticket.messages.map(m => {
+          const isOwn = m.user_id === currentUserId;
+          return '<div style="display:flex;justify-content:' + (isOwn ? 'flex-end' : 'flex-start') + ';">' +
+            '<div style="max-width:75%;background:' + (isOwn ? 'var(--accent-soft)' : 'var(--bg-alt)') + ';border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem 1.25rem;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;gap:0.75rem;">' +
+            '<strong style="font-size:0.78rem;color:' + (isOwn ? 'var(--accent)' : 'var(--text-secondary)') + ';">' + (m.user?.email?.split('@')[0] || 'Unknown') + '</strong>' +
+            '<span style="font-size:0.68rem;color:var(--text-tertiary);">' + new Date(m.created_at).toLocaleString() + '</span>' +
+            '</div>' +
+            '<p style="font-size:0.88rem;color:var(--text-secondary);line-height:1.6;margin:0;white-space:pre-wrap;">' + escapeHtml(m.content) + '</p>' +
+            '</div></div>';
+        }).join('');
+      } else {
+        container.innerHTML = '<p style="text-align:center;padding:2rem;color:var(--text-tertiary);font-size:0.85rem;">No messages yet.</p>';
+      }
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendReply() {
+      const input = document.getElementById('reply-input');
+      const content = input.value.trim();
+      if (!content) {
+        sbNotify.error('Please enter a message.');
+        return;
+      }
+      try {
+        await sbTickets.addMessage(currentTicket.id, content);
+        input.value = '';
+        sbNotify.success('Reply sent!');
+        loadTicket(currentTicket.id);
+      } catch (err) {
+        sbLog.error('Failed to send reply', err);
+        sbNotify.error('Failed to send reply: ' + (err.message || 'Unknown error'));
+      }
+    }
+
+    async function closeTicket() {
+      if (!confirm('Close this ticket?')) return;
+      try {
+        await sbTickets.updateStatus(currentTicket.id, 'closed');
+        sbNotify.success('Ticket closed.');
+        loadTicket(currentTicket.id);
+      } catch (err) {
+        sbLog.error('Failed to close ticket', err);
+        sbNotify.error('Failed to close ticket.');
+      }
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>

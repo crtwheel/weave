@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Tickets — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <div class="taskbar">
+    <div class="taskbar-left">
+      <span class="taskbar-dot online"></span>
+      <span>weave</span>
+    </div>
+    <div class="taskbar-right">
+      <span class="taskbar-wallet">0xbe9...D43fb</span>
+      <span class="taskbar-version">v1.0</span>
+    </div>
+  </div>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand"><span class="logo-icon">W</span> Weave</div>
+      <nav class="sidebar-nav">
+        <a href="index.html">Dashboard</a>
+        <a href="users.html">Users</a>
+        <a href="templates.html">Templates</a>
+        <a href="tickets.html" class="active">Tickets</a>
+        <a href="businesses.html">Businesses</a>
+        <a href="ads.html">Ads</a>
+        <a href="comments.html">Comments</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="logs.html">Audit Log</a>
+        <a href="settings.html">Settings</a>
+
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title">Support Tickets</h1>
+        <button class="btn btn-outline btn-sm" onclick="handleSignOut()">Sign Out</button>
+      </header>
+      <div class="admin-content">
+        <div class="admin-filter-bar glass" style="padding:0.75rem 1rem;margin-bottom:1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button class="btn btn-sm filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+          <button class="btn btn-sm filter-btn" data-filter="open" onclick="setFilter('open')">Open</button>
+          <button class="btn btn-sm filter-btn" data-filter="closed" onclick="setFilter('closed')">Closed</button>
+          <button class="btn btn-sm filter-btn" data-filter="resolved" onclick="setFilter('resolved')">Resolved</button>
+        </div>
+        <div class="glass" style="padding:0;overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Subject</th><th>User</th><th>Status</th><th>Priority</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="tickets-body"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary);">Loading...</td></tr></tbody>
+          </table>
+        </div>
+        <div id="ticket-detail" class="glass admin-mt-3" style="padding:1.5rem;display:none;"></div>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    .admin-filter-bar .filter-btn { background:transparent; border:1px solid var(--border); color:var(--text-secondary); cursor:pointer; padding:0.35rem 0.85rem; border-radius:var(--radius-sm); font-size:0.78rem; font-family:var(--font-body); transition:all 0.15s; }
+    .admin-filter-bar .filter-btn:hover { border-color:var(--accent); color:var(--text); }
+    .admin-filter-bar .filter-btn.active { background:var(--accent-soft); border-color:var(--accent); color:var(--accent); font-weight:600; }
+    .ticket-message { padding:0.85rem 0; border-bottom:1px solid var(--border); }
+    .ticket-message:last-child { border-bottom:none; }
+    .ticket-message .msg-meta { display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-tertiary); font-family:var(--font-display); margin-bottom:0.3rem; }
+    .ticket-message .msg-body { font-size:0.88rem; color:var(--text); line-height:1.5; }
+    .admin-badge-open { background:rgba(59,130,246,0.1); color:#1d4ed8; border:1px solid rgba(59,130,246,0.15); }
+    .admin-badge-closed { background:rgba(107,114,128,0.1); color:#4b5563; border:1px solid rgba(107,114,128,0.15); }
+    .admin-badge-resolved { background:rgba(34,197,94,0.1); color:#15803d; border:1px solid rgba(34,197,94,0.15); }
+    .admin-badge-low { background:rgba(34,197,94,0.1); color:#15803d; border:1px solid rgba(34,197,94,0.15); }
+    .admin-badge-medium { background:rgba(234,179,8,0.1); color:#b45309; border:1px solid rgba(234,179,8,0.15); }
+    .admin-badge-high { background:rgba(239,68,68,0.1); color:#b91c1c; border:1px solid rgba(239,68,68,0.15); }
+    .reply-area { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border); }
+  </style>
+
+  <script src="../js/supabase.js"></script>
+  <script src="../js/services/validation.js"></script>
+  <script src="../js/services/cache.js"></script>
+  <script src="../js/services/auth.js"></script>
+  <script src="../js/services/notifications.js"></script>
+  <script src="../js/services/comments.js"></script>
+  <script src="../js/services/tickets.js"></script>
+  <script src="../js/services/businesses.js"></script>
+  <script src="../js/services/ads.js"></script>
+  <script>
+    let allTickets = [];
+    let currentFilter = 'all';
+
+    async function handleSignOut() {
+      if ('sbAuth' in window) await sbAuth.signOut();
+      else await sbSignOut();
+      window.location.href = '../dashboard.html';
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+      renderTickets();
+    }
+
+    function statusBadge(status) {
+      const cls = 'admin-badge admin-badge-' + status;
+      return '<span class="' + cls + '">' + status.charAt(0).toUpperCase() + status.slice(1) + '</span>';
+    }
+
+    function priorityBadge(priority) {
+      const p = (priority || 'medium').toLowerCase();
+      const cls = 'admin-badge admin-badge-' + p;
+      return '<span class="' + cls + '">' + p.charAt(0).toUpperCase() + p.slice(1) + '</span>';
+    }
+
+    function renderTickets() {
+      const tbody = document.getElementById('tickets-body');
+      const filtered = currentFilter === 'all' ? allTickets : allTickets.filter(t => t.status === currentFilter);
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary);">No tickets found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = filtered.map(t => {
+        const date = t.created_at ? new Date(t.created_at).toLocaleDateString() : '—';
+        return '<tr>' +
+          '<td class="cell-mono">' + (t.id ? t.id.toString().slice(0, 8) + '...' : '—') + '</td>' +
+          '<td>' + (t.subject || '—') + '</td>' +
+          '<td class="cell-mono">' + (t.user_email || t.user_id || '—') + '</td>' +
+          '<td>' + statusBadge(t.status || 'open') + '</td>' +
+          '<td>' + priorityBadge(t.priority) + '</td>' +
+          '<td style="font-family:var(--font-display);font-size:0.7rem;white-space:nowrap;">' + date + '</td>' +
+          '<td class="cell-actions">' +
+            '<button class="btn btn-accent btn-sm" onclick="viewTicket(\'' + t.id + '\')">View</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    async function loadTickets() {
+      const tbody = document.getElementById('tickets-body');
+      try {
+        allTickets = await sbTickets.listAll();
+        if (!allTickets || !allTickets.length) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary);">No tickets found.</td></tr>';
+          return;
+        }
+        renderTickets();
+      } catch (err) {
+        sbLog.error('Failed to load tickets', err);
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--error);">Error: ' + err.message + '</td></tr>';
+      }
+    }
+
+    async function viewTicket(ticketId) {
+      const detail = document.getElementById('ticket-detail');
+      detail.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading...</p>';
+      detail.style.display = 'block';
+      try {
+        const ticket = await sbTickets.get(ticketId);
+        let html = '<div class="admin-flex-between" style="margin-bottom:1rem;">' +
+          '<h3 class="font-display" style="font-size:1rem;font-weight:700;">' + ticket.subject + '</h3>' +
+          '<button class="btn btn-outline btn-sm" onclick="closeDetail()">Close</button>' +
+          '</div>' +
+          '<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">' +
+          '<div><strong style="font-size:0.8rem;color:var(--text-secondary);">Status:</strong> ' + statusBadge(ticket.status || 'open') + '</div>' +
+          '<div><strong style="font-size:0.8rem;color:var(--text-secondary);">Priority:</strong> ' + priorityBadge(ticket.priority) + '</div>';
+        if (ticket.user_email) {
+          html += '<div><strong style="font-size:0.8rem;color:var(--text-secondary);">User:</strong> <span class="cell-mono" style="font-size:0.75rem;">' + ticket.user_email + '</span></div>';
+        }
+        html += '</div>' +
+          '<div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;">' +
+          '<select class="form-input" id="status-select" style="width:auto;padding:0.4rem 0.75rem;font-size:0.8rem;">' +
+          '<option value="open"' + (ticket.status === 'open' ? ' selected' : '') + '>Open</option>' +
+          '<option value="closed"' + (ticket.status === 'closed' ? ' selected' : '') + '>Closed</option>' +
+          '<option value="resolved"' + (ticket.status === 'resolved' ? ' selected' : '') + '>Resolved</option>' +
+          '</select>' +
+          '<button class="btn btn-accent btn-sm" onclick="updateStatus(\'' + ticket.id + '\')">Update</button>' +
+          '</div>' +
+          '<div style="margin-bottom:1rem;"><strong style="font-size:0.8rem;color:var(--text-secondary);">Messages</strong></div>';
+        if (ticket.messages && ticket.messages.length) {
+          html += ticket.messages.map(m => {
+            const time = m.created_at ? new Date(m.created_at).toLocaleString() : '';
+            const sender = m.is_admin ? 'Admin' : (m.user_email || 'User');
+            return '<div class="ticket-message">' +
+              '<div class="msg-meta"><span>' + sender + '</span><span>' + time + '</span></div>' +
+              '<div class="msg-body">' + m.content + '</div>' +
+            '</div>';
+          }).join('');
+        } else {
+          html += '<p style="color:var(--text-tertiary);font-size:0.85rem;">No messages yet.</p>';
+        }
+        html += '<div class="reply-area">' +
+          '<label class="form-label" style="margin-bottom:0.4rem;">Reply as Admin</label>' +
+          '<textarea class="form-input" id="reply-content" rows="3" placeholder="Type your reply..."></textarea>' +
+          '<button class="btn btn-accent btn-sm admin-mt-1" onclick="sendReply(\'' + ticket.id + '\')">Send Reply</button>' +
+          '</div>';
+        detail.innerHTML = html;
+      } catch (err) {
+        sbLog.error('Failed to load ticket', err);
+        detail.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--error);">Failed to load ticket details.</div>';
+      }
+    }
+
+    function closeDetail() {
+      document.getElementById('ticket-detail').style.display = 'none';
+    }
+
+    async function updateStatus(ticketId) {
+      const status = document.getElementById('status-select').value;
+      try {
+        await sbTickets.updateStatus(ticketId, status);
+        if ('sbNotify' in window) sbNotify.success('Status updated to ' + status);
+        viewTicket(ticketId);
+        loadTickets();
+      } catch (err) {
+        if ('sbNotify' in window) sbNotify.error('Failed: ' + err.message);
+        else alert('Failed: ' + err.message);
+      }
+    }
+
+    async function sendReply(ticketId) {
+      const content = document.getElementById('reply-content').value;
+      if (!content.trim()) {
+        if ('sbNotify' in window) sbNotify.error('Please enter a reply');
+        return;
+      }
+      try {
+        await sbTickets.addMessage(ticketId, content);
+        if ('sbNotify' in window) sbNotify.success('Reply sent');
+        document.getElementById('reply-content').value = '';
+        viewTicket(ticketId);
+        loadTickets();
+      } catch (err) {
+        if ('sbNotify' in window) sbNotify.error('Failed: ' + err.message);
+        else alert('Failed: ' + err.message);
+      }
+    }
+
+    async function init() {
+      const session = sbGetSession();
+      if (!session) { window.location.href = '../dashboard.html'; return; }
+      loadTickets();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

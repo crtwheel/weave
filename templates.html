@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/community.css">
 </head>
 <body>
     <div class="taskbar">
@@ -42,7 +43,7 @@
         <span class="filter-chip active" data-cat="all">All</span>
         <span class="filter-chip" data-cat="saas">SaaS</span>
         <span class="filter-chip" data-cat="portfolio">Portfolio</span>
-        <span class="filter-chip" data-cat="dashboard">Dashboard</span>
+        <span class="filter-chip" data-cat="dashboards">Dashboard</span>
         <span class="filter-chip" data-cat="blog">Blog</span>
         <span class="filter-chip" data-cat="ecommerce">E-commerce</span>
         <span class="filter-chip" data-cat="startup">Startup</span>
@@ -69,6 +70,11 @@
       <span id="page-info" style="font-family:var(--font-display);font-size:0.8rem;color:var(--text-secondary);padding:0 0.75rem;">Page 1</span>
       <button class="page-btn" id="next-btn" disabled>&rsaquo;</button>
     </div>
+
+    <div class="ad-slot" style="margin:2rem 0;">
+      <div class="ad-label">Sponsored</div>
+      <div id="sidebar-ad" class="ad-banner"></div>
+    </div>
   </section>
 
   <footer class="site-footer">
@@ -84,6 +90,7 @@
   <script src="js/services/storage.js"></script>
   <script src="js/services/templates.js"></script>
   <script src="js/services/purchases.js"></script>
+  <script src="js/services/ads.js"></script>
   <script>
     const PER_PAGE = 12;
     let allTemplates = [];
@@ -198,6 +205,20 @@
         if (currentPage < totalPages) { currentPage++; render(); }
       });
     });
+  </script>
+  <script>
+    async function loadSidebarAds() {
+      const ads = await sbAds.list('sidebar');
+      if (!ads?.length) return;
+      const container = document.getElementById('sidebar-ad');
+      if (!container) return;
+      const ad = ads[0];
+      container.innerHTML = `<a href="${ad.link_url}" target="_blank" rel="sponsored" onclick="sbAds.trackClick(${ad.id})" style="display:block;">
+        <img src="${ad.image_url}" alt="${ad.name}" style="width:100%;display:block;object-fit:cover;">
+      </a>`;
+      sbAds.trackImpression(ad.id);
+    }
+    document.addEventListener('DOMContentLoaded', loadSidebarAds);
   </script>
 </body>
 </html>

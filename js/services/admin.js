@@ -193,12 +193,23 @@ const sbAdmin = {
    */
   getStats: async () => {
     try {
-      const [profiles, purchases, logs] = await Promise.all([
-        sbSelect('profiles', { select: 'id' }),
+      const [profiles, purchases, logs, templates] = await Promise.all([
+        sbSelect('profiles', { select: 'id,created_at' }),
         sbSelect('purchases', { select: 'id,amount' }),
-        sbSelect('download_logs', { select: 'id' })
+        sbSelect('download_logs', { select: 'id' }),
+        sbSelect('templates', { select: 'id' })
       ]);
+      const now = new Date();
+      const thisMonth = profiles.filter(p => {
+        const d = new Date(p.created_at);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      }).length;
       const stats = {
+        total_users: profiles.length,
+        total_templates: templates.length,
+        total_purchases: purchases.length,
+        total_revenue: purchases.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0),
+        new_users_this_month: thisMonth,
         users: profiles.length,
         purchases: purchases.length,
         downloads: logs.length,
@@ -318,6 +329,17 @@ const sbAdmin = {
       return result;
     } catch (err) {
       sbLog.error('Admin: create announcement failed', err);
+      throw err;
+    }
+  },
+
+  deleteAnnouncement: async (id) => {
+    try {
+      await sbDelete('announcements', id);
+      sbLog.ok('Admin: announcement deleted', id);
+      return true;
+    } catch (err) {
+      sbLog.error('Admin: delete announcement failed', err);
       throw err;
     }
   }

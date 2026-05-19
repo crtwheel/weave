@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/comments.js"></script>
+  <script src="js/services/tickets.js"></script>
+  <script src="js/services/businesses.js"></script>
+</head>
+<body>
+  <div class="taskbar">
+    <div class="taskbar-left">
+      <span class="taskbar-dot online"></span>
+      <span>weave</span>
+    </div>
+    <div class="taskbar-right">
+      <span class="taskbar-wallet">0xbe9...D43fb</span>
+      <span class="taskbar-version">v1.0</span>
+    </div>
+  </div>
+  <header class="site-header">
+    <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
+    <nav class="nav-links">
+      <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
+      <a href="faq.html">FAQ</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container" style="padding-top:7rem;padding-bottom:4rem;">
+    <a href="businesses.html" style="display:inline-flex;align-items:center;gap:0.25rem;color:var(--text-secondary);text-decoration:none;font-size:0.85rem;margin-bottom:2rem;transition:color 0.2s;">&larr; Back to Directory</a>
+
+    <div id="loading-state">
+      <div class="glass" style="padding:2rem;">
+        <div class="skeleton" style="height:1.5rem;width:50%;margin-bottom:1rem;"></div>
+        <div class="skeleton" style="height:1rem;width:30%;margin-bottom:2rem;"></div>
+        <div class="skeleton" style="height:4rem;width:100%;margin-bottom:1rem;"></div>
+        <div class="skeleton" style="height:2.5rem;width:40%;"></div>
+      </div>
+    </div>
+
+    <div id="error-state" style="display:none;">
+      <div class="page-header" style="text-align:center;">
+        <h1 class="page-title">Business Not Found</h1>
+        <p class="page-subtitle" style="margin:0 auto;">This listing doesn't exist or has been removed.</p>
+        <a href="businesses.html" class="btn btn-outline" style="margin-top:1.5rem;">Browse Directory</a>
+      </div>
+    </div>
+
+    <div id="business-content" style="display:none;">
+      <div class="glass" style="padding:2rem;margin-bottom:2rem;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+          <div>
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+              <h1 class="page-title" id="biz-name" style="font-size:1.5rem;margin:0;"></h1>
+              <span id="biz-category" class="badge badge-pending"></span>
+              <span id="biz-status" class="badge"></span>
+            </div>
+            <p id="biz-desc" style="color:var(--text-secondary);font-size:0.95rem;line-height:1.7;margin-bottom:1rem;"></p>
+            <div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.85rem;">
+              <span id="biz-website-display" style="display:none;"><strong style="color:var(--text);">Website:</strong> <a id="biz-website-link" href="#" target="_blank" style="color:var(--accent);"></a></span>
+              <span id="biz-email-display" style="display:none;"><strong style="color:var(--text);">Email:</strong> <span id="biz-email-text" style="color:var(--text-secondary);"></span></span>
+            </div>
+          </div>
+          <div id="admin-actions" style="display:none;flex-shrink:0;">
+            <button class="btn btn-accent btn-sm" id="approve-btn" onclick="approveBusiness()">Approve</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="edit-section" class="glass" style="padding:2rem;display:none;">
+        <h2 class="font-display" style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Edit Listing</h2>
+        <form onsubmit="saveBusiness(event)">
+          <div class="form-group">
+            <label class="form-label" for="edit-name">Business Name</label>
+            <input class="form-input" id="edit-name" type="text" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-slug">Slug</label>
+            <input class="form-input" id="edit-slug" type="text" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-desc">Description</label>
+            <textarea class="form-input" id="edit-desc" rows="4" style="resize:vertical;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-website">Website</label>
+            <input class="form-input" id="edit-website" type="url">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-email">Contact Email</label>
+            <input class="form-input" id="edit-email" type="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-category">Category</label>
+            <select class="form-input" id="edit-category">
+              <option value="">Select a category</option>
+              <option value="Development">Development</option>
+              <option value="Design">Design</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Consulting">Consulting</option>
+              <option value="Writing">Writing</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <button class="btn btn-accent" type="submit">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentBusiness = null;
+    let currentUserId = null;
+
+    async function init() {
+      const user = await sbGetUser();
+      if (user) currentUserId = user.id;
+
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug');
+      if (!slug) {
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('error-state').style.display = 'block';
+        return;
+      }
+      loadBusiness(slug);
+    }
+
+    async function loadBusiness(slug) {
+      try {
+        const biz = await sbBusinesses.get(slug);
+        if (!biz) {
+          document.getElementById('loading-state').style.display = 'none';
+          document.getElementById('error-state').style.display = 'block';
+          return;
+        }
+        currentBusiness = biz;
+        renderBusiness(biz);
+      } catch (err) {
+        sbLog.error('Failed to load business', err);
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('error-state').style.display = 'block';
+      }
+    }
+
+    function renderBusiness(biz) {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('business-content').style.display = 'block';
+
+      document.getElementById('biz-name').textContent = biz.name;
+      document.getElementById('biz-category').textContent = biz.category || 'Uncategorized';
+      document.getElementById('biz-desc').textContent = biz.description || '';
+
+      if (biz.website) {
+        const ws = document.getElementById('biz-website-display');
+        ws.style.display = 'inline';
+        document.getElementById('biz-website-link').textContent = biz.website;
+        document.getElementById('biz-website-link').href = biz.website;
+      }
+      if (biz.contact_email) {
+        const es = document.getElementById('biz-email-display');
+        es.style.display = 'inline';
+        document.getElementById('biz-email-text').textContent = biz.contact_email;
+      }
+
+      const statusBadge = document.getElementById('biz-status');
+      if (biz.status === 'approved') {
+        statusBadge.className = 'badge badge-verified';
+        statusBadge.textContent = 'Approved';
+      } else {
+        statusBadge.className = 'badge badge-pending';
+        statusBadge.textContent = 'Pending';
+      }
+
+      const canEdit = currentUserId && (biz.user_id === currentUserId || biz.is_admin);
+      if (canEdit) {
+        const editSection = document.getElementById('edit-section');
+        editSection.style.display = 'block';
+        document.getElementById('edit-name').value = biz.name || '';
+        document.getElementById('edit-slug').value = biz.slug || '';
+        document.getElementById('edit-desc').value = biz.description || '';
+        document.getElementById('edit-website').value = biz.website || '';
+        document.getElementById('edit-email').value = biz.contact_email || '';
+        document.getElementById('edit-category').value = biz.category || '';
+      }
+
+      if (biz.is_admin && biz.status !== 'approved') {
+        document.getElementById('admin-actions').style.display = 'block';
+      }
+    }
+
+    async function saveBusiness(e) {
+      e.preventDefault();
+      const data = {
+        name: document.getElementById('edit-name').value.trim(),
+        slug: document.getElementById('edit-slug').value.trim(),
+        description: document.getElementById('edit-desc').value.trim(),
+        website: document.getElementById('edit-website').value.trim(),
+        contact_email: document.getElementById('edit-email').value.trim(),
+        category: document.getElementById('edit-category').value
+      };
+      if (!data.name || !data.slug) {
+        sbNotify.error('Name and slug are required.');
+        return;
+      }
+      try {
+        await sbBusinesses.update(currentBusiness.id, data);
+        sbNotify.success('Business updated!');
+        loadBusiness(data.slug);
+      } catch (err) {
+        sbLog.error('Failed to update business', err);
+        sbNotify.error('Failed to update: ' + (err.message || 'Unknown error'));
+      }
+    }
+
+    async function approveBusiness() {
+      try {
+        await sbBusinesses.approve(currentBusiness.id);
+        sbNotify.success('Business approved!');
+        loadBusiness(currentBusiness.slug);
+      } catch (err) {
+        sbLog.error('Failed to approve', err);
+        sbNotify.error('Failed to approve: ' + (err.message || 'Unknown error'));
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

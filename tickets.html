@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Tickets — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/comments.js"></script>
+  <script src="js/services/tickets.js"></script>
+  <script src="js/services/businesses.js"></script>
+</head>
+<body>
+  <div class="taskbar">
+    <div class="taskbar-left">
+      <span class="taskbar-dot online"></span>
+      <span>weave</span>
+    </div>
+    <div class="taskbar-right">
+      <span class="taskbar-wallet">0xbe9...D43fb</span>
+      <span class="taskbar-version">v1.0</span>
+    </div>
+  </div>
+  <header class="site-header">
+    <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
+    <nav class="nav-links">
+      <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
+      <a href="faq.html">FAQ</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="page-header" style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <h1 class="page-title font-display">Support Tickets</h1>
+        <p class="page-subtitle">Get help with your purchases and account</p>
+      </div>
+      <button class="btn btn-accent" onclick="openNewTicket()">+ New Ticket</button>
+    </div>
+
+    <div id="tickets-list">
+      <div class="glass" style="padding:1.5rem 0;overflow:hidden;">
+        <table class="data-table">
+          <thead>
+            <tr><th>Subject</th><th>Status</th><th>Priority</th><th>Date</th><th class="actions">Action</th></tr>
+          </thead>
+          <tbody id="tickets-body">
+            <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-secondary);">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="new-ticket-modal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this)closeNewTicket()">
+    <div class="modal">
+      <div class="modal-header">
+        <span>New Ticket</span>
+        <button class="btn btn-sm" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;padding:0;color:var(--text-tertiary);" onclick="closeNewTicket()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="ticket-subject">Subject</label>
+          <input class="form-input" id="ticket-subject" type="text" placeholder="Brief description of your issue" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ticket-priority">Priority</label>
+          <select class="form-input" id="ticket-priority">
+            <option value="low">Low</option>
+            <option value="normal" selected>Normal</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeNewTicket()">Cancel</button>
+        <button class="btn btn-accent" onclick="submitTicket()">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function init() {
+      const user = await sbGetUser();
+      if (!user) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      loadTickets();
+    }
+
+    async function loadTickets() {
+      const tbody = document.getElementById('tickets-body');
+      try {
+        const tickets = await sbTickets.list();
+        if (!tickets?.length) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-secondary);">No tickets yet. Create one to get support.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = tickets.map(t => {
+          const statusClass = t.status === 'open' ? 'badge-pending'
+            : t.status === 'resolved' ? 'badge-verified' : 'badge-rejected';
+          const priorityBadge = t.priority === 'urgent' ? 'style="background:rgba(239,68,68,0.1);color:#b91c1c;border:1px solid rgba(239,68,68,0.15);"'
+            : t.priority === 'high' ? 'style="background:rgba(249,115,22,0.1);color:#c2410c;border:1px solid rgba(249,115,22,0.15);"'
+            : t.priority === 'low' ? 'style="background:rgba(107,114,128,0.1);color:#4b5563;border:1px solid rgba(107,114,128,0.15);"'
+            : '';
+          return '<tr>' +
+            '<td><a href="ticket.html?id=' + t.id + '" style="color:var(--text);text-decoration:none;font-weight:500;">' + escapeHtml(t.subject) + '</a></td>' +
+            '<td><span class="badge ' + statusClass + '">' + t.status + '</span></td>' +
+            '<td><span class="badge" ' + priorityBadge + '>' + t.priority + '</span></td>' +
+            '<td style="color:var(--text-secondary);font-size:0.85rem;">' + new Date(t.created_at).toLocaleDateString() + '</td>' +
+            '<td class="actions"><a href="ticket.html?id=' + t.id + '" class="btn btn-sm btn-outline">View</a></td>' +
+            '</tr>';
+        }).join('');
+      } catch (err) {
+        sbLog.error('Failed to load tickets', err);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--error);">Failed to load tickets.</td></tr>';
+      }
+    }
+
+    function openNewTicket() {
+      document.getElementById('new-ticket-modal').style.display = 'flex';
+      document.getElementById('ticket-subject').focus();
+    }
+
+    function closeNewTicket() {
+      document.getElementById('new-ticket-modal').style.display = 'none';
+      document.getElementById('ticket-subject').value = '';
+      document.getElementById('ticket-priority').value = 'normal';
+    }
+
+    async function submitTicket() {
+      const subject = document.getElementById('ticket-subject').value.trim();
+      const priority = document.getElementById('ticket-priority').value;
+      if (!subject) {
+        sbNotify.error('Please enter a subject.');
+        return;
+      }
+      try {
+        await sbTickets.create(subject, priority);
+        sbNotify.success('Ticket created!');
+        closeNewTicket();
+        loadTickets();
+      } catch (err) {
+        sbLog.error('Failed to create ticket', err);
+        sbNotify.error('Failed to create ticket: ' + (err.message || 'Unknown error'));
+      }
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>

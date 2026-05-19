@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/community.css">
 </head>
 <body>
     <div class="taskbar">
@@ -68,6 +69,10 @@
           <h3 class="font-display" style="font-size:0.9rem;margin:1.5rem 0 0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-secondary);">What's Included</h3>
           <ul class="feature-list" id="features-list"></ul>
 
+          <div class="ad-inline" id="inline-ad">
+            <div class="ad-label">Sponsored</div>
+          </div>
+
           <h3 class="font-display" style="font-size:0.9rem;margin:2rem 0 0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-secondary);">How to Buy</h3>
           <ol class="steps-list">
             <li><strong>Send payment</strong> to the wallet address below for the exact ETH amount shown above.</li>
@@ -113,6 +118,17 @@
           <div class="skeleton" style="height:280px;"></div>
         </div>
       </div>
+
+      <div class="glass" style="padding:2rem;margin-top:3rem;">
+        <h2 class="font-display" style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Discussion</h2>
+        <div id="comments-section">
+          <p style="color:var(--text-secondary);font-size:0.85rem;">Loading comments...</p>
+        </div>
+        <div id="comment-form" style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <textarea class="form-input" id="comment-input" placeholder="Share your thoughts..." rows="3" style="resize:vertical;margin-bottom:0.75rem;"></textarea>
+          <button class="btn btn-accent btn-sm" onclick="postComment()">Post Comment</button>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -129,6 +145,10 @@
   <script src="js/services/storage.js"></script>
   <script src="js/services/templates.js"></script>
   <script src="js/services/purchases.js"></script>
+  <script src="js/services/ads.js"></script>
+  <script src="js/services/comments.js"></script>
+  <script src="js/services/tickets.js"></script>
+  <script src="js/services/businesses.js"></script>
   <script>
     let currentProductId = null;
 
@@ -151,6 +171,7 @@
         }
         renderProduct(product);
         loadRelated(product.category_slug, product.id);
+        loadComments(product.id);
       } catch (err) {
         sbLog.error('Failed to load product', err);
         document.getElementById('loading-state').style.display = 'none';
@@ -260,7 +281,60 @@
       btn.textContent = 'Submit';
     }
 
-    document.addEventListener('DOMContentLoaded', loadProduct);
+    async function loadComments(templateId) {
+      const comments = await sbComments.list(templateId);
+      const section = document.getElementById('comments-section');
+      if (!comments?.length) {
+        section.innerHTML = '<p style="color:var(--text-secondary);font-size:0.85rem;">No comments yet. Be the first!</p>';
+        return;
+      }
+      section.innerHTML = comments.map(c => `
+        <div style="padding:1rem 0;border-bottom:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.35rem;">
+            <strong style="font-size:0.82rem;">${c.user?.email?.split('@')[0] || 'Anonymous'}</strong>
+            <span style="font-size:0.7rem;color:var(--text-tertiary);">${new Date(c.created_at).toLocaleDateString()}</span>
+          </div>
+          <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.6;">${c.content}</p>
+        </div>
+      `).join('');
+    }
+
+    async function postComment() {
+      const user = await sbGetUser();
+      if (!user) { sbNotify.error('Please sign in to comment.'); return; }
+      const input = document.getElementById('comment-input');
+      const content = input.value.trim();
+      if (!content) return;
+      try {
+        const slug = new URLSearchParams(window.location.search).get('slug');
+        const template = await sbTemplates.get(slug);
+        await sbComments.create(template.id, content);
+        input.value = '';
+        sbNotify.success('Comment posted!');
+        loadComments(template.id);
+      } catch (err) {
+        sbLog.error('Failed to post comment', err);
+        sbNotify.error('Failed to post comment.');
+      }
+    }
+
+    async function loadInlineAd() {
+      const ads = await sbAds.list('inline');
+      if (!ads?.length) return;
+      const container = document.getElementById('inline-ad');
+      if (!container) return;
+      const ad = ads[0];
+      container.innerHTML += `<a href="${ad.link_url}" target="_blank" rel="sponsored" onclick="sbAds.trackClick(${ad.id})" style="display:flex;gap:1rem;align-items:center;text-decoration:none;color:inherit;margin-top:0.5rem;">
+        <img src="${ad.image_url}" alt="${ad.name}" style="max-height:70px;border-radius:var(--radius-sm);object-fit:cover;">
+        <div><div style="font-weight:600;font-size:0.85rem;">${ad.name}</div><div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.15rem;">${ad.description || ''}</div></div>
+      </a>`;
+      sbAds.trackImpression(ad.id);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProduct();
+      loadInlineAd();
+    });
   </script>
 </body>
 </html>

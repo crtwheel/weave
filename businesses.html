@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Directory — Weave</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/supabase.js"></script>
+  <script src="js/services/validation.js"></script>
+  <script src="js/services/cache.js"></script>
+  <script src="js/services/auth.js"></script>
+  <script src="js/services/notifications.js"></script>
+  <script src="js/services/comments.js"></script>
+  <script src="js/services/tickets.js"></script>
+  <script src="js/services/businesses.js"></script>
+</head>
+<body>
+  <div class="taskbar">
+    <div class="taskbar-left">
+      <span class="taskbar-dot online"></span>
+      <span>weave</span>
+    </div>
+    <div class="taskbar-right">
+      <span class="taskbar-wallet">0xbe9...D43fb</span>
+      <span class="taskbar-version">v1.0</span>
+    </div>
+  </div>
+  <header class="site-header">
+    <a href="index.html" class="logo"><span class="logo-icon">W</span>Weave</a>
+    <nav class="nav-links">
+      <a href="index.html">Products</a>
+      <a href="templates.html">Browse</a>
+      <a href="faq.html">FAQ</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="page-header" style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <h1 class="page-title font-display">Business Directory</h1>
+        <p class="page-subtitle">Find partners and service providers</p>
+      </div>
+      <button class="btn btn-accent" onclick="openCreateBusiness()">+ List Your Business</button>
+    </div>
+
+    <div id="businesses-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;"></div>
+  </div>
+
+  <div id="create-business-modal" class="modal-backdrop" style="display:none;" onclick="if(event.target===this)closeCreateBusiness()">
+    <div class="modal">
+      <div class="modal-header">
+        <span>List Your Business</span>
+        <button class="btn btn-sm" style="background:transparent;border:none;font-size:1.25rem;cursor:pointer;padding:0;color:var(--text-tertiary);" onclick="closeCreateBusiness()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="biz-name">Business Name *</label>
+          <input class="form-input" id="biz-name" type="text" placeholder="My Business" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="biz-slug">Slug *</label>
+          <input class="form-input" id="biz-slug" type="text" placeholder="my-business" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="biz-desc">Description</label>
+          <textarea class="form-input" id="biz-desc" rows="3" placeholder="Describe your business..." style="resize:vertical;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="biz-website">Website</label>
+          <input class="form-input" id="biz-website" type="url" placeholder="https://example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="biz-email">Contact Email</label>
+          <input class="form-input" id="biz-email" type="email" placeholder="contact@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="biz-category">Category</label>
+          <select class="form-input" id="biz-category">
+            <option value="">Select a category</option>
+            <option value="Development">Development</option>
+            <option value="Design">Design</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Consulting">Consulting</option>
+            <option value="Writing">Writing</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeCreateBusiness()">Cancel</button>
+        <button class="btn btn-accent" onclick="submitBusiness()">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function init() {
+      loadBusinesses();
+    }
+
+    async function loadBusinesses() {
+      const grid = document.getElementById('businesses-grid');
+      try {
+        const businesses = await sbBusinesses.list(true);
+        if (!businesses?.length) {
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-text">No businesses listed yet.</div></div>';
+          return;
+        }
+        grid.innerHTML = businesses.map(b => `
+          <a href="business.html?slug=${b.slug}" class="card">
+            <div class="card-body">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <div class="card-title">${escapeHtml(b.name)}</div>
+                ${b.category ? '<span class="badge badge-pending">' + escapeHtml(b.category) + '</span>' : ''}
+              </div>
+              <div class="card-desc">${b.description ? escapeHtml(b.description.substring(0, 150)) + (b.description.length > 150 ? '...' : '') : 'No description'}</div>
+              ${b.website ? '<div style="margin-top:0.75rem;"><span style="font-size:0.8rem;color:var(--accent);">' + escapeHtml(b.website) + '</span></div>' : ''}
+            </div>
+          </a>
+        `).join('');
+      } catch (err) {
+        sbLog.error('Failed to load businesses', err);
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-text">Failed to load businesses.</div></div>';
+      }
+    }
+
+    function openCreateBusiness() {
+      sbGetUser().then(function(user) {
+        if (!user) {
+          sbNotify.error('Please sign in to list your business.');
+          window.location.href = 'dashboard.html';
+          return;
+        }
+        document.getElementById('create-business-modal').style.display = 'flex';
+        document.getElementById('biz-name').focus();
+      });
+    }
+
+    function closeCreateBusiness() {
+      document.getElementById('create-business-modal').style.display = 'none';
+      ['biz-name','biz-slug','biz-desc','biz-website','biz-email','biz-category'].forEach(function(id) {
+        document.getElementById(id).value = '';
+      });
+    }
+
+    async function submitBusiness() {
+      const name = document.getElementById('biz-name').value.trim();
+      const slug = document.getElementById('biz-slug').value.trim();
+      const description = document.getElementById('biz-desc').value.trim();
+      const website = document.getElementById('biz-website').value.trim();
+      const contact_email = document.getElementById('biz-email').value.trim();
+      const category = document.getElementById('biz-category').value;
+
+      if (!name || !slug) {
+        sbNotify.error('Business name and slug are required.');
+        return;
+      }
+
+      try {
+        await sbBusinesses.create({ name, slug, description, website, contact_email, category });
+        sbNotify.success('Business listed! Pending approval.');
+        closeCreateBusiness();
+        loadBusinesses();
+      } catch (err) {
+        sbLog.error('Failed to create business', err);
+        sbNotify.error('Failed to create listing: ' + (err.message || 'Unknown error'));
+      }
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>
