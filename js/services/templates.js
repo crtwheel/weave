@@ -115,18 +115,21 @@ const sbTemplates = {
     if (cached) return cached;
     try {
       const data = await sbSelect('templates', { eq: ['popular', true], limit: 6 });
-      sbCache.set('templates_popular', data, 60000);
-      return data;
-    } catch (err) {
-      sbLog.warn('Templates: popular column missing, falling back to list', err);
-      try {
-        const data = await sbSelect('templates', { limit: 6, order: 'created_at' });
+      if (data && data.length > 0) {
         sbCache.set('templates_popular', data, 60000);
         return data;
-      } catch (fallbackErr) {
-        sbLog.error('Templates: fallback list failed', fallbackErr);
-        throw fallbackErr;
       }
+      sbLog.info('Templates: no popular templates, showing latest');
+    } catch (err) {
+      sbLog.warn('Templates: popular column missing, falling back to list', err);
+    }
+    try {
+      const data = await sbSelect('templates', { limit: 12, order: 'created_at' });
+      sbCache.set('templates_popular', data, 60000);
+      return data;
+    } catch (fallbackErr) {
+      sbLog.error('Templates: fallback list failed', fallbackErr);
+      throw fallbackErr;
     }
   },
 
